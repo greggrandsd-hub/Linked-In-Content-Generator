@@ -291,12 +291,25 @@ def generate_post_image(post_text: str) -> bytes | None:
     """
     client = get_gemini_client()
 
+    # Vary the image style each time for visual freshness
+    import random
+    styles = [
+        "A dramatic cinematic photo of a high-stakes boardroom meeting with dramatic lighting, shallow depth of field, dark moody tones",
+        "A bold editorial-style illustration with strong geometric shapes, contrasting colors like navy blue and burnt orange, modern and abstract",
+        "A striking overhead photo of a clean desk workspace with strategic elements — chess pieces, a whiteboard with diagrams, coffee, dramatic shadows",
+        "A powerful wide-angle photo of a lone figure standing at a crossroads or fork in the road, metaphorical, dramatic sky, golden hour lighting",
+        "A stylized 3D render of interconnected gears, arrows, and pathways forming a revenue machine, dark background with glowing blue and gold accents",
+        "A photojournalistic shot of a coach drawing plays on a whiteboard, intense focus, locker room energy, black and white with selective color",
+        "An aerial drone photo of a complex maze or labyrinth, symbolizing complexity vs. simplicity, crisp and high contrast",
+        "A dramatic close-up of hands building something — blocks, a bridge, a structure — symbolizing process and construction, warm tones",
+    ]
+    chosen_style = random.choice(styles)
+
     prompt = (
-        "A professional, clean, visually striking image for a LinkedIn post about: "
-        f"{post_text[:300]}. "
-        "Style: modern, bold, business-appropriate color palette with blues and whites. "
-        "Abstract or conceptual — no text, no people's faces, no logos. "
-        "Think: clean infographic style, geometric shapes, professional atmosphere."
+        f"{chosen_style}. "
+        f"The image should visually represent this concept: {post_text[:200]}. "
+        "NO text, NO words, NO letters, NO logos in the image. "
+        "High quality, LinkedIn-worthy, professional, eye-catching in a social feed."
     )
 
     print("[Gemini] Generating post image with Imagen...")

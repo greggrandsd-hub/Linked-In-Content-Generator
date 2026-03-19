@@ -20,6 +20,11 @@ GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "")
 EMAIL_RECIPIENT = os.getenv("EMAIL_RECIPIENT", "")  # where to send the draft
 
+# ── LinkedIn API (for auto-posting) ──────────────────────────────────────────
+LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID", "")
+LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET", "")
+LINKEDIN_ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN", "")
+
 # ── Voice / Persona ──────────────────────────────────────────────────────────
 LINKEDIN_PERSONA = os.getenv(
     "LINKEDIN_PERSONA",

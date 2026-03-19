@@ -284,6 +284,52 @@ def generate_three_options(uploaded_file: types.File | str) -> list[tuple[str, s
     return options
 
 
+def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
+    """
+    Generate a LinkedIn post about a custom topic (not from the 20 themes).
+    Still uses Greg's Staccato voice and style rules.
+    Returns (topic_label, post_text).
+    """
+    client = get_gemini_client()
+
+    prompt = (
+        f"{LINKEDIN_PERSONA}\n\n"
+        f"{EXAMPLE_POSTS}\n\n"
+        f"YOUR TOPIC FOR THIS POST:\n"
+        f'The user wants to write about: "{user_topic}"\n\n'
+        f"CRITICAL: This post MUST be about the topic above.\n"
+        f"Write about it as Greg Grand would — through the lens of sales leadership, "
+        f"revenue growth, and building teams. Make it a G Squared Truth even though "
+        f"it's not one of the standard 20. Same voice, same fire, same format.\n\n"
+        "STACCATO STYLE RULES (non-negotiable):\n"
+        "- Hook must be under 10 words\n"
+        "- One idea per line. Double space between every line.\n"
+        "- Structure: Hook -> The Problem -> The Fix -> One clear question at the end\n"
+        "- NO exclamation points. Ever.\n"
+        "- NO AI words: delve, leverage, landscape, unlock, harness, elevate, foster, navigate, robust\n"
+        "- Use em dashes (—) for dramatic pauses\n"
+        "- Use analogies and metaphors to make points stick\n"
+        "- Be direct, opinionated, confrontational — challenge bad behavior\n"
+        "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
+        "- NO hashtags. Ever. Do not include any hashtags.\n"
+        "- Keep it under 1300 characters\n"
+        "- Do NOT sound generic, corporate, or motivational-poster-ish\n\n"
+        "Return ONLY the post text, nothing else."
+    )
+
+    print(f'[Gemini] Generating freestyle post about: "{user_topic}"...')
+    response = _call_with_retry(
+        lambda: client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[prompt],
+        )
+    )
+
+    post_text = response.text.strip()
+    print(f"[Gemini] Post generated ({len(post_text)} chars)")
+    return (user_topic, post_text)
+
+
 def generate_post_image(post_text: str) -> bytes | None:
     """
     Use Imagen via Google GenAI to generate an image for the LinkedIn post.

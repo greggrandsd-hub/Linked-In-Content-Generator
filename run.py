@@ -20,7 +20,7 @@ if sys.platform == "win32":
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from dropbox_client import download_latest_file, list_files
-from gemini_client import generate_three_options, generate_post_image, upload_file
+from gemini_client import generate_three_options, generate_freestyle_post, generate_post_image, upload_file
 from email_client import send_three_options_email
 from post import save_options
 from linkedin_client import post_to_linkedin
@@ -178,19 +178,20 @@ def show_main_menu():
     print("   LinkedIn Content Generator - G Squared Truths")
     print("=" * 55)
     print()
-    print("  1. Generate 3 new posts")
+    print("  1. Generate 3 new posts (from your 20 G Squared Truths)")
+    print("  2. Write about my own topic")
     if saved_count:
-        print(f"  2. View saved posts ({saved_count} saved)")
+        print(f"  3. View saved posts ({saved_count} saved)")
     else:
-        print("  2. View saved posts (none yet)")
-    print("  3. Quit")
+        print("  3. View saved posts (none yet)")
+    print("  4. Quit")
     print()
 
     while True:
-        choice = input("  What do you want to do? (1, 2, or 3): ").strip()
-        if choice in ("1", "2", "3"):
+        choice = input("  What do you want to do? (1, 2, 3, or 4): ").strip()
+        if choice in ("1", "2", "3", "4"):
             return choice
-        print("  Just type 1, 2, or 3")
+        print("  Just type 1, 2, 3, or 4")
 
 
 def handle_generate():
@@ -320,6 +321,82 @@ def handle_saved():
     print("\n  Back to main menu.")
 
 
+def handle_freestyle():
+    """Let user type their own topic and generate a post about it."""
+    print()
+    print("---------------------------------------------------")
+    print("   Write about your own topic")
+    print("---------------------------------------------------")
+    print()
+    print("  Type what you want to talk about.")
+    print("  Could be a concept, a story, something that happened today,")
+    print("  a rant, an observation — anything.")
+    print()
+    topic = input("  Your topic: ").strip()
+
+    if not topic:
+        print("  No topic entered. Back to menu.")
+        return
+
+    print(f'\n  Generating a post about: "{topic}"...\n')
+    theme, text = generate_freestyle_post(topic)
+
+    print(f"\n---------------------------------------------------")
+    print(f"   YOUR POST: {theme}")
+    print(f"---------------------------------------------------")
+    print()
+    print(text)
+    print()
+    print(f"---------------------------------------------------")
+
+    # Generate image
+    print("\n  Creating an image for this post...")
+    image = generate_post_image(text)
+
+    if ask_yes_no("Post it now?"):
+        post_flow(theme, text, image)
+    elif ask_yes_no("Save it for later?"):
+        if ask_yes_no("Schedule it for a specific day?"):
+            schedule = ask_schedule()
+        else:
+            schedule = None
+        img_path = save_image_for_later(image, theme)
+        total = saved_posts.save_post(theme, text, img_path, schedule)
+        if schedule:
+            print(f"\n  Saved and scheduled. You now have {total} saved post(s).")
+        else:
+            print(f"\n  Saved for later. You now have {total} saved post(s).")
+    else:
+        print("\n  Skipped.")
+
+    # Offer to generate another take on the same topic
+    if ask_yes_no("Want another version of the same topic?"):
+        print(f'\n  Generating another take on: "{topic}"...\n')
+        theme2, text2 = generate_freestyle_post(topic)
+
+        print(f"\n---------------------------------------------------")
+        print(f"   TAKE 2: {theme2}")
+        print(f"---------------------------------------------------")
+        print()
+        print(text2)
+        print()
+        print(f"---------------------------------------------------")
+
+        print("\n  Creating an image...")
+        image2 = generate_post_image(text2)
+
+        if ask_yes_no("Post this version?"):
+            post_flow(theme2, text2, image2)
+        elif ask_yes_no("Save this version for later?"):
+            if ask_yes_no("Schedule it for a specific day?"):
+                schedule = ask_schedule()
+            else:
+                schedule = None
+            img_path = save_image_for_later(image2, theme2)
+            total = saved_posts.save_post(theme2, text2, img_path, schedule)
+            print(f"\n  Saved. You now have {total} saved post(s).")
+
+
 def post_flow(theme: str, text: str, image: bytes | None) -> bool:
     """Edit and post a single post. Returns True if posted."""
     if ask_yes_no("Want to edit it first?"):
@@ -386,8 +463,10 @@ def run():
         if choice == "1":
             handle_generate()
         elif choice == "2":
-            handle_saved()
+            handle_freestyle()
         elif choice == "3":
+            handle_saved()
+        elif choice == "4":
             print("\n  See you next time.\n")
             return
 

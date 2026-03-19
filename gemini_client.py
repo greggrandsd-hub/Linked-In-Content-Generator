@@ -296,20 +296,30 @@ def generate_post_image(post_text: str) -> bytes | None:
     styles = [
         "A dramatic cinematic photo of a high-stakes boardroom meeting with dramatic lighting, shallow depth of field, dark moody tones",
         "A bold editorial-style illustration with strong geometric shapes, contrasting colors like navy blue and burnt orange, modern and abstract",
-        "A striking overhead photo of a clean desk workspace with strategic elements — chess pieces, a whiteboard with diagrams, coffee, dramatic shadows",
+        "A striking overhead photo of a clean desk workspace with chess pieces, coffee cup, and dramatic shadows — no screens or papers visible",
         "A powerful wide-angle photo of a lone figure standing at a crossroads or fork in the road, metaphorical, dramatic sky, golden hour lighting",
-        "A stylized 3D render of interconnected gears, arrows, and pathways forming a revenue machine, dark background with glowing blue and gold accents",
-        "A photojournalistic shot of a coach drawing plays on a whiteboard, intense focus, locker room energy, black and white with selective color",
-        "An aerial drone photo of a complex maze or labyrinth, symbolizing complexity vs. simplicity, crisp and high contrast",
-        "A dramatic close-up of hands building something — blocks, a bridge, a structure — symbolizing process and construction, warm tones",
+        "A stylized 3D render of interconnected gears and pathways forming a machine, dark background with glowing blue and gold accents, abstract",
+        "A cinematic silhouette of a business leader looking out a floor-to-ceiling window at a city skyline, dramatic contrast, reflective mood",
+        "An aerial drone photo of a complex maze or labyrinth, crisp and high contrast, abstract pattern",
+        "A dramatic close-up of hands building with wooden blocks or stacking stones, symbolizing process and construction, warm cinematic tones",
+        "A moody black-and-white photo of an empty conference table with a single spotlight, minimalist and powerful",
+        "A vibrant abstract painting style image with bold brush strokes in navy, gold, and white, conveying energy and movement",
     ]
     chosen_style = random.choice(styles)
 
+    # Strip hashtags and any text that might bleed into the image
+    clean_concept = post_text[:200].split("#")[0].strip()
+
     prompt = (
         f"{chosen_style}. "
-        f"The image should visually represent this concept: {post_text[:200]}. "
-        "NO text, NO words, NO letters, NO logos in the image. "
-        "High quality, LinkedIn-worthy, professional, eye-catching in a social feed."
+        f"Visually represent this concept: {clean_concept}. "
+        "CRITICAL REQUIREMENT: The image must contain ABSOLUTELY ZERO text, "
+        "ZERO words, ZERO letters, ZERO numbers, ZERO writing of any kind. "
+        "No signs, no labels, no captions, no watermarks, no typography, "
+        "no handwriting, no whiteboard writing, no screen text. "
+        "Pure visual imagery only — shapes, people, objects, scenes. "
+        "If there is a whiteboard or screen in the scene it must be blank. "
+        "High quality, LinkedIn-worthy, professional, eye-catching."
     )
 
     print("[Gemini] Generating post image with Imagen...")

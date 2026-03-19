@@ -2,13 +2,14 @@
 LinkedIn Content Generator — All-in-One
 
 Double-click "LinkedIn Content Generator.bat" on your Desktop.
-Generate posts, save your favorites, edit, and post — all in one place.
+Generate posts, save your favorites, schedule them, and post — all in one place.
 """
 
 import os
 import sys
 import tempfile
 import subprocess
+from datetime import datetime, timedelta
 
 # Fix Windows console encoding for special characters
 if sys.platform == "win32":
@@ -21,7 +22,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from dropbox_client import download_latest_file, list_files
 from gemini_client import generate_three_options, generate_post_image, upload_file
 from email_client import send_three_options_email
-from post import save_options, load_options
+from post import save_options
 from linkedin_client import post_to_linkedin
 import saved_posts
 
@@ -49,7 +50,7 @@ def open_in_notepad(text: str) -> str:
 
 
 def save_image_for_later(image_bytes: bytes | None, theme: str) -> str | None:
-    """Save image bytes to a file for later posting. Returns the file path."""
+    """Save image bytes to a file for later posting."""
     if not image_bytes:
         return None
     safe_name = theme.replace(" ", "_").replace('"', "").replace("'", "")[:30]
@@ -69,10 +70,108 @@ def load_image(path: str | None) -> bytes | None:
     return None
 
 
+def ask_yes_no(question: str) -> bool:
+    """Simple yes/no question."""
+    while True:
+        answer = input(f"  {question} (y/n): ").strip().lower()
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("n", "no"):
+            return False
+        print("  Just type y or n")
+
+
+def ask_schedule() -> str | None:
+    """Ask when to schedule a post. Returns datetime string or None."""
+    print()
+    print("  When do you want to post it?")
+    print()
+    print("    1. Tomorrow morning (8am)")
+    print("    2. This Thursday")
+    print("    3. This Friday")
+    print("    4. Next Monday")
+    print("    5. Next Tuesday")
+    print("    6. Next Wednesday")
+    print("    7. Pick a specific date")
+    print()
+
+    while True:
+        choice = input("  Pick a number (1-7): ").strip()
+        now = datetime.now()
+
+        if choice == "1":
+            dt = (now + timedelta(days=1)).replace(hour=8, minute=0, second=0)
+            break
+        elif choice == "2":
+            days_ahead = (3 - now.weekday()) % 7 or 7
+            dt = (now + timedelta(days=days_ahead)).replace(hour=8, minute=0, second=0)
+            break
+        elif choice == "3":
+            days_ahead = (4 - now.weekday()) % 7 or 7
+            dt = (now + timedelta(days=days_ahead)).replace(hour=8, minute=0, second=0)
+            break
+        elif choice == "4":
+            days_ahead = (0 - now.weekday()) % 7 or 7
+            dt = (now + timedelta(days=days_ahead)).replace(hour=8, minute=0, second=0)
+            break
+        elif choice == "5":
+            days_ahead = (1 - now.weekday()) % 7 or 7
+            dt = (now + timedelta(days=days_ahead)).replace(hour=8, minute=0, second=0)
+            break
+        elif choice == "6":
+            days_ahead = (2 - now.weekday()) % 7 or 7
+            dt = (now + timedelta(days=days_ahead)).replace(hour=8, minute=0, second=0)
+            break
+        elif choice == "7":
+            print()
+            date_str = input("  Type the date (example: March 25): ").strip()
+            time_str = input("  What time? (example: 8am, 12pm, 3pm): ").strip()
+
+            # Parse the date
+            try:
+                # Try common formats
+                year = now.year
+                for fmt in ["%B %d", "%b %d", "%m/%d", "%m-%d"]:
+                    try:
+                        parsed = datetime.strptime(date_str, fmt).replace(year=year)
+                        break
+                    except ValueError:
+                        continue
+                else:
+                    print("  Couldn't understand that date. Try like: March 25 or 3/25")
+                    continue
+
+                # Parse time
+                time_str = time_str.lower().replace(" ", "")
+                for fmt in ["%I%p", "%I:%M%p", "%H:%M"]:
+                    try:
+                        parsed_time = datetime.strptime(time_str, fmt)
+                        parsed = parsed.replace(hour=parsed_time.hour, minute=parsed_time.minute)
+                        break
+                    except ValueError:
+                        continue
+                else:
+                    parsed = parsed.replace(hour=8, minute=0)
+                    print(f"  Couldn't read the time -- defaulting to 8am")
+
+                dt = parsed
+                break
+            except Exception:
+                print("  Couldn't understand that. Try again.")
+                continue
+        else:
+            print("  Just type a number 1-7")
+            continue
+
+    scheduled = dt.strftime("%Y-%m-%d %H:%M")
+    friendly = dt.strftime("%A, %B %d at %I:%M %p")
+    print(f"\n  Scheduled for: {friendly}")
+    return scheduled
+
+
 def show_main_menu():
     """Show the main menu and return choice."""
     saved_count = saved_posts.count()
-    saved_label = f"  2. Post a saved favorite ({saved_count} saved)" if saved_count else "  2. Post a saved favorite (none yet)"
 
     print()
     print("=" * 55)
@@ -80,7 +179,10 @@ def show_main_menu():
     print("=" * 55)
     print()
     print("  1. Generate 3 new posts")
-    print(saved_label)
+    if saved_count:
+        print(f"  2. View saved posts ({saved_count} saved)")
+    else:
+        print("  2. View saved posts (none yet)")
     print("  3. Quit")
     print()
 
@@ -92,7 +194,7 @@ def show_main_menu():
 
 
 def handle_generate():
-    """Generate 3 new posts, let user save/post them."""
+    """Generate 3 new posts, walk user through each one."""
     print("\n  Pulling your latest content from Dropbox...")
     files = list_files()
     local_path, original_name = download_latest_file()
@@ -121,7 +223,7 @@ def handle_generate():
     # Cleanup temp file
     os.unlink(local_path)
 
-    # Show all 3
+    # Walk through each option one at a time
     print("\n")
     print("=" * 55)
     print("   YOUR 3 OPTIONS")
@@ -129,52 +231,36 @@ def handle_generate():
 
     for i, (theme, text) in enumerate(options, 1):
         print(f"\n---------------------------------------------------")
-        print(f"   OPTION {i}: {theme}")
+        print(f"   OPTION {i} of 3: {theme}")
         print(f"---------------------------------------------------")
         print()
         print(text)
-
-    print(f"\n---------------------------------------------------")
-    print("\n  Options also sent to your email with images.")
-
-    # Let user act on each option
-    while True:
         print()
-        print("  What next?")
-        print("    Type 1, 2, or 3 to POST that option now")
-        print("    Type s1, s2, or s3 to SAVE one for later")
-        print("    Type 'done' when finished")
+        print(f"---------------------------------------------------")
+        print(f"  What do you want to do with Option {i}?")
         print()
-        action = input("  Your choice: ").strip().lower()
 
-        if action == "done":
-            print("\n  All set.")
-            return
+        if ask_yes_no("Post it now?"):
+            post_flow(theme, text, images[i-1])
+        elif ask_yes_no("Save it for later?"):
+            if ask_yes_no("Schedule it for a specific day?"):
+                schedule = ask_schedule()
+            else:
+                schedule = None
+            img_path = save_image_for_later(images[i-1], theme)
+            total = saved_posts.save_post(theme, text, img_path, schedule)
+            if schedule:
+                print(f"\n  Saved and scheduled. You now have {total} saved post(s).")
+            else:
+                print(f"\n  Saved for later. You now have {total} saved post(s).")
+        else:
+            print(f"\n  Skipped Option {i}.")
 
-        # Save for later
-        if action in ("s1", "s2", "s3"):
-            idx = int(action[1]) - 1
-            if idx < len(options):
-                theme, text = options[idx]
-                img_path = save_image_for_later(images[idx], theme)
-                total = saved_posts.save_post(theme, text, img_path)
-                print(f"\n  Saved Option {idx+1} ({theme}) for later. You now have {total} saved post(s).")
-            continue
-
-        # Post now
-        if action in ("1", "2", "3"):
-            idx = int(action) - 1
-            if idx < len(options):
-                theme, text = options[idx]
-                image = images[idx]
-                post_flow(theme, text, image)
-            continue
-
-        print("  Type 1/2/3 to post, s1/s2/s3 to save, or 'done'")
+    print("\n  All done. Options also sent to your email with images.")
 
 
 def handle_saved():
-    """Show saved posts and let user pick one to post."""
+    """Show saved posts and walk user through them."""
     posts = saved_posts.get_saved_posts()
 
     if not posts:
@@ -186,68 +272,61 @@ def handle_saved():
     print(f"   YOUR SAVED POSTS ({len(posts)} total)")
     print("=" * 55)
 
-    for i, p in enumerate(posts, 1):
+    # Walk through each one
+    i = 0
+    while i < len(posts):
+        p = posts[i]
+        sched = p.get("scheduled_for")
+        if sched:
+            try:
+                sched_friendly = datetime.strptime(sched, "%Y-%m-%d %H:%M").strftime("%A, %B %d at %I:%M %p")
+                sched_label = f"  SCHEDULED: {sched_friendly}"
+            except ValueError:
+                sched_label = f"  SCHEDULED: {sched}"
+        else:
+            sched_label = "  Not scheduled"
+
         print(f"\n---------------------------------------------------")
-        print(f"   #{i}: {p['theme']}  (saved {p['saved_on']})")
+        print(f"   Post {i+1} of {len(posts)}: {p['theme']}")
+        print(f"   Saved: {p['saved_on']}")
+        print(f"  {sched_label}")
         print(f"---------------------------------------------------")
         print()
         print(p["text"])
-
-    print(f"\n---------------------------------------------------")
-
-    while True:
         print()
-        print(f"  Type a number (1-{len(posts)}) to POST it")
-        print(f"  Type d1, d2, etc. to DELETE one")
-        print(f"  Type 'back' to go back")
-        print()
-        action = input("  Your choice: ").strip().lower()
+        print(f"---------------------------------------------------")
 
-        if action == "back":
-            return
-
-        # Delete
-        if action.startswith("d") and action[1:].isdigit():
-            idx = int(action[1:]) - 1
-            if 0 <= idx < len(posts):
-                removed = posts[idx]
-                saved_posts.remove_post(idx)
+        if ask_yes_no("Post this one now?"):
+            image = load_image(p.get("image_path"))
+            posted = post_flow(p["theme"], p["text"], image)
+            if posted:
+                saved_posts.remove_post(i)
                 posts = saved_posts.get_saved_posts()
-                print(f"\n  Deleted '{removed['theme']}'. {len(posts)} saved post(s) remaining.")
-                if not posts:
-                    print("  No more saved posts.")
-                    return
+                print(f"  Removed from saved. {len(posts)} post(s) remaining.")
+                # Don't increment i since list shifted
+                continue
+        elif ask_yes_no("Delete this one?"):
+            saved_posts.remove_post(i)
+            posts = saved_posts.get_saved_posts()
+            print(f"  Deleted. {len(posts)} post(s) remaining.")
             continue
 
-        # Post
-        if action.isdigit():
-            idx = int(action) - 1
-            if 0 <= idx < len(posts):
-                p = posts[idx]
-                image = load_image(p.get("image_path"))
-                posted = post_flow(p["theme"], p["text"], image)
-                if posted:
-                    saved_posts.remove_post(idx)
-                    posts = saved_posts.get_saved_posts()
-                    print(f"  Removed from saved queue. {len(posts)} post(s) remaining.")
-                    if not posts:
-                        return
-            continue
+        i += 1
 
-        print(f"  Type a number (1-{len(posts)}), d1/d2/etc., or 'back'")
+        if i < len(posts):
+            if not ask_yes_no("See the next saved post?"):
+                break
+
+    print("\n  Back to main menu.")
 
 
 def post_flow(theme: str, text: str, image: bytes | None) -> bool:
     """Edit and post a single post. Returns True if posted."""
-    print(f"\n  Selected: {theme}")
-
-    edit_choice = input("\n  Want to edit it before posting? (y/n): ").strip().lower()
-    if edit_choice == "y":
+    if ask_yes_no("Want to edit it first?"):
         text = open_in_notepad(text)
         print("\n  Got your edits.")
 
-    confirm = input("\n  Post this to LinkedIn right now? (y/n): ").strip().lower()
-    if confirm != "y":
+    if not ask_yes_no("Post to LinkedIn right now?"):
         print("  Skipped.")
         return False
 
@@ -267,7 +346,40 @@ def post_flow(theme: str, text: str, image: bytes | None) -> bool:
         return False
 
 
+def check_scheduled_posts():
+    """Check if any scheduled posts are due and offer to post them."""
+    due = saved_posts.get_due_posts()
+    if not due:
+        return
+
+    print()
+    print(f"  ** You have {len(due)} scheduled post(s) ready to go **")
+
+    for idx, p in due:
+        print(f"\n---------------------------------------------------")
+        print(f"   SCHEDULED POST: {p['theme']}")
+        print(f"   Was scheduled for: {p.get('scheduled_for', 'now')}")
+        print(f"---------------------------------------------------")
+        print()
+        # Show preview
+        lines = [l for l in p["text"].split("\n") if l.strip()]
+        for line in lines[:5]:
+            print(f"  {line}")
+        if len(lines) > 5:
+            print(f"  ... ({len(lines)-5} more lines)")
+        print()
+
+        if ask_yes_no("Post this now?"):
+            image = load_image(p.get("image_path"))
+            posted = post_flow(p["theme"], p["text"], image)
+            if posted:
+                saved_posts.remove_post(idx)
+
+
 def run():
+    # Check for any due scheduled posts first
+    check_scheduled_posts()
+
     while True:
         choice = show_main_menu()
 

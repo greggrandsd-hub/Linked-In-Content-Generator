@@ -1,5 +1,6 @@
 """
 Saved Posts Queue — Save posts you like for posting later.
+Supports scheduling posts for specific dates and times.
 """
 
 import json
@@ -23,7 +24,8 @@ def _save_all(posts: list[dict]) -> None:
         json.dump(posts, f, indent=2, ensure_ascii=False)
 
 
-def save_post(theme: str, text: str, image_path: str | None = None) -> int:
+def save_post(theme: str, text: str, image_path: str | None = None,
+              scheduled_for: str | None = None) -> int:
     """Save a post to the queue. Returns the total number of saved posts."""
     posts = _load_all()
     posts.append({
@@ -31,6 +33,7 @@ def save_post(theme: str, text: str, image_path: str | None = None) -> int:
         "text": text,
         "image_path": image_path,
         "saved_on": datetime.now().strftime("%B %d, %Y at %I:%M %p"),
+        "scheduled_for": scheduled_for,
     })
     _save_all(posts)
     return len(posts)
@@ -39,6 +42,23 @@ def save_post(theme: str, text: str, image_path: str | None = None) -> int:
 def get_saved_posts() -> list[dict]:
     """Get all saved posts."""
     return _load_all()
+
+
+def get_due_posts() -> list[tuple[int, dict]]:
+    """Get posts that are scheduled and due now. Returns list of (index, post)."""
+    posts = _load_all()
+    now = datetime.now()
+    due = []
+    for i, p in enumerate(posts):
+        sched = p.get("scheduled_for")
+        if sched:
+            try:
+                sched_time = datetime.strptime(sched, "%Y-%m-%d %H:%M")
+                if sched_time <= now:
+                    due.append((i, p))
+            except ValueError:
+                pass
+    return due
 
 
 def remove_post(index: int) -> None:

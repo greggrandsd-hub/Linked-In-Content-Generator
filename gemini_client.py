@@ -240,7 +240,7 @@ def generate_linkedin_post(
         "- Use analogies and metaphors to make points stick\n"
         "- Be direct, opinionated, confrontational — challenge bad behavior\n"
         "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
-        "- Include 3-5 relevant hashtags at the very end\n"
+        "- NO hashtags. Ever. Do not include any hashtags.\n"
         "- Keep it under 1300 characters\n"
         "- Do NOT sound generic, corporate, or motivational-poster-ish\n\n"
         "Return ONLY the post text, nothing else."

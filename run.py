@@ -20,7 +20,7 @@ if sys.platform == "win32":
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from dropbox_client import download_latest_file, list_files
-from gemini_client import generate_three_options, upload_file
+from gemini_client import generate_three_options, generate_post_image, upload_file
 from email_client import send_three_options_email
 from post import save_options, load_options
 from linkedin_client import post_to_linkedin
@@ -71,8 +71,12 @@ def run():
     print("\n  Generating 3 post options (different themes)...\n")
     options = generate_three_options(uploaded_file)
 
-    # Skip image generation — posts speak for themselves
-    images = [None, None, None]
+    print("\n  Creating images for each option...")
+    images = []
+    for i, (theme, text) in enumerate(options, 1):
+        print(f"    Image {i}/3...")
+        img = generate_post_image(text)
+        images.append(img)
 
     # Save for later use
     save_options(options, images)

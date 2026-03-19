@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Generated Posts - LinkedIn Content Generator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Your 3 Generated Posts</h1>
+    <p>Each post is based on a different G Squared Truth, written in your voice.</p>
+</div>
+
+{% if post_result %}
+<div class="success-banner">
+    <div class="check-icon">
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Posted to LinkedIn</h2>
+    <p>Your post is live. Check your LinkedIn profile.</p>
+    <div class="post-id">Post ID: {{ post_result }}</div>
+</div>
+{% endif %}
+
+{% if options %}
+<div class="post-cards">
+    {% for opt in options %}
+    <div class="post-card">
+        <div class="post-card-header">
+            <h3>{{ opt.theme }}</h3>
+            <span class="post-badge">Option {{ loop.index }}</span>
+        </div>
+        <div class="post-card-body">
+            <div class="post-text">{{ opt.text }}</div>
+            {% if opt.has_image %}
+            <div class="post-image">
+                <img src="{{ url_for('serve_image', source='session', index=loop.index0) }}" alt="Generated image for {{ opt.theme }}">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Edit Area -->
+        <div class="edit-area" id="editArea{{ loop.index0 }}">
+            <form method="POST" action="{{ url_for('edit_and_post') }}">
+                <input type="hidden" name="source" value="session">
+                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                <textarea name="text" id="editText{{ loop.index0 }}">{{ opt.text }}</textarea>
+                <div class="edit-actions">
+                    <button type="submit" class="btn btn-primary">Post Edited Version</button>
+                    <button type="button" class="btn btn-outline" onclick="toggleEdit({{ loop.index0 }})">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="post-card-actions">
+            <form method="POST" action="{{ url_for('post_now', index=loop.index0) }}" style="display:inline" onsubmit="return confirm('Post this to LinkedIn now?')">
+                <input type="hidden" name="source" value="session">
+                <button type="submit" class="btn btn-primary">Post Now</button>
+            </form>
+            <form method="POST" action="{{ url_for('save_post', index=loop.index0) }}" style="display:inline">
+                <input type="hidden" name="source" value="session">
+                <button type="submit" class="btn btn-outline">Save for Later</button>
+            </form>
+            <button type="button" class="btn btn-outline" onclick="toggleEdit({{ loop.index0 }})">Edit &amp; Post</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">
+        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <h3>Ready to generate</h3>
+    <p>Click below to pull your latest Dropbox content and generate 3 LinkedIn posts.</p>
+    <a href="{{ url_for('generate_trigger') }}" class="btn btn-primary btn-lg" id="generateBtn" onclick="showLoading('Generating your posts...', 'Pulling from Dropbox, writing posts, creating images -- about 60 seconds')">Generate 3 Posts</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleEdit(index) {
+    var area = document.getElementById('editArea' + index);
+    area.classList.toggle('visible');
+}
+
+function showLoading(text, sub) {
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('loadingText').textContent = text || 'Working...';
+    document.getElementById('loadingSubtext').textContent = sub || '';
+}
+</script>
+{% endblock %}

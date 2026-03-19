@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LinkedIn Content Generator{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+                <span class="logo-icon">G2</span>
+                <span>LinkedIn Content Generator
+                    <span class="subtitle">G Squared Truths</span>
+                </span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                <li><a href="{{ url_for('generate') }}" class="{% if active_page == 'generate' %}active{% endif %}">Generate</a></li>
+                <li><a href="{{ url_for('freestyle') }}" class="{% if active_page == 'freestyle' %}active{% endif %}">Freestyle</a></li>
+                <li>
+                    <a href="{{ url_for('saved') }}" class="{% if active_page == 'saved' %}active{% endif %}">
+                        Saved{% if saved_count %}<span class="nav-badge">{{ saved_count }}</span>{% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Generating your posts...</div>
+        <div class="loading-subtext" id="loadingSubtext">This usually takes 30-60 seconds</div>
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

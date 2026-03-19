@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - LinkedIn Content Generator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>LinkedIn Content Generator</h1>
+    <p>G Squared Truths -- powered by AI, written in your voice.</p>
+</div>
+
+<div class="action-cards">
+    <a href="{{ url_for('generate') }}" class="action-card" id="generateCard">
+        <div class="card-icon blue">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>Generate 3 New Posts</h3>
+        <p>Pull your latest content from Dropbox and generate 3 LinkedIn posts, each based on a different G Squared Truth. Includes AI-generated images.</p>
+        <span class="card-arrow">Generate posts &rarr;</span>
+    </a>
+
+    <a href="{{ url_for('freestyle') }}" class="action-card">
+        <div class="card-icon green">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        </div>
+        <h3>Write About My Own Topic</h3>
+        <p>Got something on your mind? Type your topic and get a LinkedIn post in your signature Staccato style. No Dropbox file needed.</p>
+        <span class="card-arrow">Start writing &rarr;</span>
+    </a>
+
+    <a href="{{ url_for('saved') }}" class="action-card">
+        <div class="card-icon orange">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Saved Posts{% if saved_count %} <span class="nav-badge">{{ saved_count }}</span>{% endif %}</h3>
+        <p>{% if saved_count %}You have {{ saved_count }} saved post{{ 's' if saved_count != 1 else '' }} ready to review, schedule, or publish.{% else %}No saved posts yet. Generate some posts and save your favorites here.{% endif %}</p>
+        <span class="card-arrow">View saved &rarr;</span>
+    </a>
+</div>
+{% endblock %}

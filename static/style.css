@@ -1,0 +1,739 @@
+/* ── LinkedIn Content Generator — Web UI Styles ──────────────── */
+
+:root {
+    --linkedin-blue: #0077B5;
+    --linkedin-dark: #005f8f;
+    --linkedin-light: #e8f4fa;
+    --bg: #f4f6f8;
+    --card-bg: #ffffff;
+    --text: #1d2226;
+    --text-muted: #666666;
+    --text-light: #999999;
+    --border: #e0e0e0;
+    --success: #057642;
+    --success-bg: #e6f4ed;
+    --danger: #cc1016;
+    --danger-bg: #fce8e8;
+    --warning: #915907;
+    --warning-bg: #fef3e0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ── Navigation ───────────────────────────────────────────────── */
+
+.navbar {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.navbar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.navbar-brand .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--linkedin-blue);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.navbar-brand .subtitle {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 13px;
+    margin-left: 4px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-links a:hover {
+    background: var(--linkedin-light);
+    color: var(--linkedin-blue);
+}
+
+.nav-links a.active {
+    background: var(--linkedin-light);
+    color: var(--linkedin-blue);
+}
+
+.nav-badge {
+    background: var(--linkedin-blue);
+    color: white;
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 600;
+}
+
+/* ── Main Container ───────────────────────────────────────────── */
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+/* ── Page Header ──────────────────────────────────────────────── */
+
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.page-header p {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+/* ── Dashboard Cards ──────────────────────────────────────────── */
+
+.action-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.action-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.25s ease;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+    border-color: var(--linkedin-blue);
+}
+
+.action-card .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 18px;
+}
+
+.card-icon.blue {
+    background: var(--linkedin-light);
+    color: var(--linkedin-blue);
+}
+
+.card-icon.green {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.card-icon.orange {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.action-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.action-card p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.action-card .card-arrow {
+    color: var(--linkedin-blue);
+    font-size: 14px;
+    margin-top: 16px;
+    font-weight: 600;
+}
+
+/* ── Post Cards ───────────────────────────────────────────────── */
+
+.post-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.post-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.post-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.post-card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--linkedin-blue);
+}
+
+.post-card-header .post-badge {
+    background: var(--linkedin-light);
+    color: var(--linkedin-blue);
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.post-card-body {
+    padding: 24px;
+}
+
+.post-text {
+    white-space: pre-wrap;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--text);
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.post-text::-webkit-scrollbar {
+    width: 5px;
+}
+.post-text::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.post-image {
+    margin-top: 20px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.post-image img {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
+.post-card-actions {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #fafbfc;
+}
+
+/* Edit area */
+.edit-area {
+    display: none;
+    padding: 0 24px 20px;
+}
+
+.edit-area.visible {
+    display: block;
+}
+
+.edit-area textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 16px;
+    border: 2px solid var(--linkedin-blue);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.7;
+    resize: vertical;
+    color: var(--text);
+    outline: none;
+}
+
+.edit-area .edit-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--linkedin-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--linkedin-dark);
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #04612f;
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #a80d12;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+.btn-lg {
+    padding: 14px 28px;
+    font-size: 15px;
+    border-radius: var(--radius);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── Alerts / Flash messages ──────────────────────────────────── */
+
+.alert {
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid #b8dfcc;
+}
+
+.alert-error {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid #f0c0c0;
+}
+
+.alert-info {
+    background: var(--linkedin-light);
+    color: var(--linkedin-dark);
+    border: 1px solid #b0d8ec;
+}
+
+/* ── Loading Overlay ──────────────────────────────────────────── */
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.92);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--linkedin-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.loading-subtext {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* ── Freestyle Form ───────────────────────────────────────────── */
+
+.freestyle-form {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    padding: 32px;
+    max-width: 700px;
+}
+
+.freestyle-form label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.freestyle-form .hint {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 16px;
+    font-weight: 400;
+}
+
+.freestyle-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    resize: vertical;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.freestyle-form textarea:focus {
+    border-color: var(--linkedin-blue);
+    box-shadow: 0 0 0 3px rgba(0,119,181,0.1);
+}
+
+.freestyle-form .form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+}
+
+/* ── Saved Posts Meta ─────────────────────────────────────────── */
+
+.post-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.post-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.scheduled-badge {
+    background: var(--warning-bg);
+    color: var(--warning);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ── Schedule Picker ──────────────────────────────────────────── */
+
+.schedule-picker {
+    display: none;
+    padding: 0 24px 20px;
+}
+
+.schedule-picker.visible {
+    display: block;
+}
+
+.schedule-picker input[type="datetime-local"] {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+}
+
+.schedule-picker input:focus {
+    border-color: var(--linkedin-blue);
+}
+
+.schedule-picker .schedule-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+}
+
+/* ── Success Banner ───────────────────────────────────────────── */
+
+.success-banner {
+    background: var(--success-bg);
+    border: 1px solid #b8dfcc;
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.success-banner .check-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--success);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.success-banner h2 {
+    color: var(--success);
+    margin-bottom: 8px;
+}
+
+.success-banner p {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.success-banner .post-id {
+    font-family: "Courier New", monospace;
+    background: white;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text);
+    border: 1px solid var(--border);
+    word-break: break-all;
+}
+
+/* ── Empty State ──────────────────────────────────────────────── */
+
+.empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+}
+
+.empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.empty-state p {
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .navbar-inner {
+        flex-direction: column;
+        height: auto;
+        padding: 12px 0;
+        gap: 8px;
+    }
+
+    .nav-links {
+        gap: 2px;
+    }
+
+    .nav-links a {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 20px 16px;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+
+    .action-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .action-card {
+        padding: 24px;
+    }
+
+    .post-card-actions {
+        flex-direction: column;
+    }
+
+    .post-card-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .freestyle-form {
+        padding: 24px;
+    }
+}
+
+/* ── Utility ──────────────────────────────────────────────────── */
+
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-16 { margin-bottom: 16px; }
+.text-center { text-align: center; }
+
+/* Fade-in animation for cards */
+.post-card {
+    animation: fadeUp 0.4s ease forwards;
+    opacity: 0;
+}
+
+.post-card:nth-child(1) { animation-delay: 0.05s; }
+.post-card:nth-child(2) { animation-delay: 0.15s; }
+.post-card:nth-child(3) { animation-delay: 0.25s; }
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

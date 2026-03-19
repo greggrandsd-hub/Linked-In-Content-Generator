@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Freestyle Post - LinkedIn Content Generator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Write About Your Own Topic</h1>
+    <p>Type what you want to talk about. AI generates a post in your Staccato style.</p>
+</div>
+
+{% if post_result %}
+<div class="success-banner">
+    <div class="check-icon">
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Posted to LinkedIn</h2>
+    <p>Your post is live. Check your LinkedIn profile.</p>
+    <div class="post-id">Post ID: {{ post_result }}</div>
+</div>
+{% endif %}
+
+<div class="freestyle-form">
+    <form method="POST" action="{{ url_for('freestyle') }}" onsubmit="showLoading('Generating your post...', 'Writing in your voice and creating an image -- about 30 seconds')">
+        <label for="topic">Your Topic</label>
+        <p class="hint">Could be a concept, a story, something that happened today, a rant, an observation -- anything.</p>
+        <textarea name="topic" id="topic" placeholder="Example: Why most sales managers report the news instead of making it better through coaching" required>{{ topic or '' }}</textarea>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">Generate Post</button>
+        </div>
+    </form>
+</div>
+
+{% if result %}
+<div class="post-cards mt-24">
+    <div class="post-card">
+        <div class="post-card-header">
+            <h3>{{ result.theme }}</h3>
+            <span class="post-badge">Freestyle</span>
+        </div>
+        <div class="post-card-body">
+            <div class="post-text">{{ result.text }}</div>
+            {% if result.has_image %}
+            <div class="post-image">
+                <img src="{{ url_for('serve_image', source='freestyle', index=0) }}" alt="Generated image">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Edit Area -->
+        <div class="edit-area" id="editArea0">
+            <form method="POST" action="{{ url_for('edit_and_post') }}">
+                <input type="hidden" name="source" value="freestyle">
+                <input type="hidden" name="index" value="0">
+                <textarea name="text" id="editText0">{{ result.text }}</textarea>
+                <div class="edit-actions">
+                    <button type="submit" class="btn btn-primary">Post Edited Version</button>
+                    <button type="button" class="btn btn-outline" onclick="toggleEdit(0)">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="post-card-actions">
+            <form method="POST" action="{{ url_for('post_now', index=0) }}" style="display:inline" onsubmit="return confirm('Post this to LinkedIn now?')">
+                <input type="hidden" name="source" value="freestyle">
+                <button type="submit" class="btn btn-primary">Post Now</button>
+            </form>
+            <form method="POST" action="{{ url_for('save_post', index=0) }}" style="display:inline">
+                <input type="hidden" name="source" value="freestyle">
+                <button type="submit" class="btn btn-outline">Save for Later</button>
+            </form>
+            <button type="button" class="btn btn-outline" onclick="toggleEdit(0)">Edit &amp; Post</button>
+            <form method="POST" action="{{ url_for('freestyle') }}" style="display:inline" onsubmit="showLoading('Generating another take...', 'Same topic, fresh perspective -- about 30 seconds')">
+                <input type="hidden" name="topic" value="{{ topic }}">
+                <button type="submit" class="btn btn-outline">Try Another Take</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleEdit(index) {
+    var area = document.getElementById('editArea' + index);
+    area.classList.toggle('visible');
+}
+
+function showLoading(text, sub) {
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('loadingText').textContent = text || 'Working...';
+    document.getElementById('loadingSubtext').textContent = sub || '';
+}
+</script>
+{% endblock %}

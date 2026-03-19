@@ -16,6 +16,7 @@ import sys
 from dropbox_client import download_latest_file, list_files
 from gemini_client import generate_three_options, generate_post_image, upload_file
 from email_client import send_three_options_email
+from post import save_options
 
 
 def run_pipeline():
@@ -58,6 +59,9 @@ def run_pipeline():
         print(f"\n  Image {i}/3 ({theme})...")
         img = generate_post_image(text)
         images.append(img)
+
+    # -- Save options for easy posting later
+    save_options(options, images)
 
     # -- Step 6: Email all 3 options
     print("\n[Step 6/6] Sending email with 3 options...")

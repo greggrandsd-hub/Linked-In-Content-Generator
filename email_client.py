@@ -10,6 +10,12 @@ from email.mime.text import MIMEText
 from config import EMAIL_RECIPIENT, GMAIL_ADDRESS, GMAIL_APP_PASSWORD
 
 
+def _get_recipients(recipient: str = "") -> list[str]:
+    """Parse recipient string (comma-separated) into a list of emails."""
+    raw = recipient or EMAIL_RECIPIENT
+    return [r.strip() for r in raw.split(",") if r.strip()]
+
+
 def send_email(
     subject: str,
     post_text: str,
@@ -19,8 +25,8 @@ def send_email(
     """
     Send a single LinkedIn post draft via Gmail SMTP.
     """
-    recipient = recipient or EMAIL_RECIPIENT
-    if not all([GMAIL_ADDRESS, GMAIL_APP_PASSWORD, recipient]):
+    recipients = _get_recipients(recipient)
+    if not all([GMAIL_ADDRESS, GMAIL_APP_PASSWORD, recipients]):
         raise ValueError(
             "Gmail credentials or recipient not configured. "
             "Check GMAIL_ADDRESS, GMAIL_APP_PASSWORD, and EMAIL_RECIPIENT in .env."
@@ -28,7 +34,7 @@ def send_email(
 
     msg = MIMEMultipart("related")
     msg["From"] = GMAIL_ADDRESS
-    msg["To"] = recipient
+    msg["To"] = ", ".join(recipients)
     msg["Subject"] = subject
 
     # Build HTML body
@@ -60,7 +66,7 @@ def send_email(
         img_part.add_header("Content-Disposition", "inline", filename="linkedin_post.png")
         msg.attach(img_part)
 
-    print(f"[Gmail] Sending email to {recipient}...")
+    print(f"[Gmail] Sending email to {', '.join(recipients)}...")
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
         server.send_message(msg)
@@ -79,8 +85,8 @@ def send_three_options_email(
     options: list of (theme_name, post_text)
     images: list of image bytes (or None) for each option
     """
-    recipient = recipient or EMAIL_RECIPIENT
-    if not all([GMAIL_ADDRESS, GMAIL_APP_PASSWORD, recipient]):
+    recipients = _get_recipients(recipient)
+    if not all([GMAIL_ADDRESS, GMAIL_APP_PASSWORD, recipients]):
         raise ValueError(
             "Gmail credentials or recipient not configured. "
             "Check GMAIL_ADDRESS, GMAIL_APP_PASSWORD, and EMAIL_RECIPIENT in .env."
@@ -88,7 +94,7 @@ def send_three_options_email(
 
     msg = MIMEMultipart("related")
     msg["From"] = GMAIL_ADDRESS
-    msg["To"] = recipient
+    msg["To"] = ", ".join(recipients)
     msg["Subject"] = subject
 
     # Build HTML for all 3 options
@@ -139,7 +145,7 @@ def send_three_options_email(
             img_part.add_header("Content-Disposition", "inline", filename=f"option_{i}.png")
             msg.attach(img_part)
 
-    print(f"[Gmail] Sending 3 options to {recipient}...")
+    print(f"[Gmail] Sending 3 options to {', '.join(recipients)}...")
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
         server.send_message(msg)

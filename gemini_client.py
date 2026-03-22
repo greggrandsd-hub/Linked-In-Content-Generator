@@ -22,6 +22,42 @@ _GEMINI_SUPPORTED_EXTENSIONS = {
     ".mp3", ".wav", ".mp4", ".mpeg", ".mov", ".avi",
 }
 
+# ── The 20 AI Sales Leadership Program Themes ───────────────────────────────
+AI_SALES_LEADERSHIP_THEMES = [
+    ('AI Won\'t Replace Sales Leaders — It Exposes Weak Ones', 'Leaders who can\'t coach, think strategically, or build process will be replaced — not by AI, but by the leaders who use AI.'),
+    ('The Gut-Check Problem', 'Most sales leaders make million-dollar decisions on gut feel. AI gives you the data to replace gut with certainty.'),
+    ('Speed to Signal', 'Your competitors using AI get market signals weeks before you do. That lag costs pipeline, and it costs deals.'),
+    ('The AI Adoption Gap', 'There are two kinds of sales leaders right now: those building AI-powered teams, and those about to be disrupted by them.'),
+    ('AI as a Coaching Multiplier', 'One manager can\'t coach 12 reps deeply. AI can surface every call, flag every missed question, and score every conversation.'),
+    ('Garbage In, Garbage Out', 'AI doesn\'t fix a broken sales process — it amplifies it. Get your fundamentals right before you layer in AI.'),
+    ('The Human Edge', 'AI handles research, routing, and repetition. Humans handle trust, nuance, and judgment. Know which is which.'),
+    ('Personalization at Scale', 'Your buyer expects you to know them before you call. AI makes this possible at scale. Ignoring it is leaving deals on the table.'),
+    ('The CRM Graveyard', 'Most CRMs are where data goes to die. AI changes that — but only if your team actually uses the system.'),
+    ('Fear vs. Curiosity', 'Sales leaders who fear AI spend their energy defending the past. Leaders who are curious about AI spend their energy building the future.'),
+    ('AI is Not a Magic Wand', 'You still need a clear ICP, a repeatable process, and managers who coach. AI amplifies what you already have — nothing more.'),
+    ('The Training Gap', 'You can\'t send your team into an AI-driven sales environment without training them. That\'s not a strategy — that\'s malpractice.'),
+    ('Predictive Pipeline', 'The best sales leaders will soon know which deals will close before the rep does. That\'s not magic — it\'s AI-powered pattern recognition.'),
+    ('The 70/30 Rule', 'AI handles 70% of the research, prep, and follow-up. Your rep uses that freed time to actually sell. That\'s the new playbook.'),
+    ('Authenticity in the Age of AI', 'Buyers can smell AI-generated outreach from a mile away. Use AI for research and prep. Use humans for relationships and trust.'),
+    ('Meeting Intelligence', 'Every sales call is a goldmine of competitive intelligence, coaching moments, and buying signals. AI mines it. Most leaders ignore it.'),
+    ('The New Sales Stack', 'It\'s not about having the most tools — it\'s about having the right AI-powered workflow that your team actually uses consistently.'),
+    ('Change or Be Changed', 'The sales playbook that worked in 2020 is obsolete. AI-native competitors are rewriting the rules. The question is who is writing yours.'),
+    ('Forecasting Finally Works', 'AI-powered forecasting removes the wishful thinking from your pipeline review. Clean data in, accurate projections out — no more hallucinated pipelines.'),
+    ('Leadership in the Age of AI', 'The best AI sales leaders aren\'t technologists. They are strategists who know how to amplify human talent with intelligent tools.'),
+]
+
+AI_PROGRAM_PERSONA = (
+    "You are Greg Grand — a Vistage Speaker and sales leadership expert who runs "
+    "The AI Sales Leadership Program at theaisalesleader.com. "
+    "You help CEOs, founders, and sales leaders understand how to use AI to build "
+    "faster, smarter revenue teams. "
+    "Your content is direct, opinionated, and grounded in real sales leadership experience. "
+    "You are not a tech evangelist — you are a results-driven sales leader who has seen "
+    "what works and what doesn't when AI meets the sales floor."
+)
+
+AI_PROGRAM_CTA = "theaisalesleader.com"
+
 # ── The 20 G Squared Truths ─────────────────────────────────────────────────
 G_SQUARED_TRUTHS = [
     ('Strategy vs. Execution', 'A "perfect" strategy in a PDF is worthless. Real strategy is what happens in the field.'),
@@ -202,12 +238,43 @@ def pick_random_themes(count: int = 3) -> list[tuple[str, str]]:
     return random.sample(G_SQUARED_TRUTHS, min(count, len(G_SQUARED_TRUTHS)))
 
 
+_LENGTH_SPECS = {
+    "short": (
+        "LENGTH: SHORT (300-450 characters total)\n"
+        "- Hook under 8 words — make it sting\n"
+        "- 5-7 lines total. One idea per line. Every word earns its place.\n"
+        "- Structure: Sharp hook → One brutal truth → One concrete action → One direct question\n"
+        "- No filler, no setup, no warming up — hit hard and get out\n"
+    ),
+    "medium": (
+        "LENGTH: MEDIUM (700-950 characters total)\n"
+        "- Hook under 10 words\n"
+        "- 12-16 lines total. One idea per line.\n"
+        "- Structure: Hook → The Problem (2-3 lines) → The Fix (3-4 specific points) → Question\n"
+        "- Room for one sharp analogy or real-world example\n"
+        "- Enough depth to be useful, tight enough to hold attention\n"
+    ),
+    "long": (
+        "LENGTH: LONG (1100-1400 characters total)\n"
+        "- Hook under 10 words\n"
+        "- 20-28 lines total. One idea per line.\n"
+        "- Structure: Hook → Context/Story (2-3 lines) → The Problem (3-4 lines) → "
+        "Detailed Solution with 4-6 numbered or bulleted steps → Challenge to the reader\n"
+        "- Rich with specifics: name the behaviors, name the mistakes, name the fixes\n"
+        "- Can include a mini-list (use dashes, not bullets) for the fix steps\n"
+        "- End with a question that makes them think, not just agree\n"
+    ),
+}
+
+
 def generate_linkedin_post(
     uploaded_file: types.File | str,
     theme: tuple[str, str] | None = None,
+    length: str = "medium",
 ) -> tuple[str, str]:
     """
     Generate a single LinkedIn post for a specific G Squared Truth theme.
+    length: 'short', 'medium', or 'long'
     Returns (theme_name, post_text).
     """
     client = get_gemini_client()
@@ -216,6 +283,7 @@ def generate_linkedin_post(
         theme = random.choice(G_SQUARED_TRUTHS)
 
     theme_name, theme_description = theme
+    length_spec = _LENGTH_SPECS.get(length, _LENGTH_SPECS["medium"])
 
     prompt = (
         f"{LINKEDIN_PERSONA}\n\n"
@@ -227,13 +295,13 @@ def generate_linkedin_post(
         f"The core idea is: {theme_description}\n"
         f"Do NOT write about generic LinkedIn advice or content tips.\n"
         f"Write about THIS specific G Squared Truth as it applies to sales teams, "
-        f"founders, and revenue leaders.\n\n"
-        "Use any relevant context from the reference material below to enrich "
-        "the post, but the THEME must drive the post.\n\n"
+        f"founders, and revenue leaders. Be specific — name the real behaviors, "
+        f"the real mistakes, the real consequences. Give concrete examples.\n\n"
+        "Use any relevant context from the reference material to enrich the post, "
+        "but the THEME must drive it.\n\n"
+        f"{length_spec}\n"
         "STACCATO STYLE RULES (non-negotiable):\n"
-        "- Hook must be under 10 words\n"
         "- One idea per line. Double space between every line.\n"
-        "- Structure: Hook -> The Problem -> The Fix -> One clear question at the end\n"
         "- NO exclamation points. Ever.\n"
         "- NO AI words: delve, leverage, landscape, unlock, harness, elevate, foster, navigate, robust\n"
         "- Use em dashes (—) for dramatic pauses\n"
@@ -241,7 +309,6 @@ def generate_linkedin_post(
         "- Be direct, opinionated, confrontational — challenge bad behavior\n"
         "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
         "- NO hashtags. Ever. Do not include any hashtags.\n"
-        "- Keep it under 1300 characters\n"
         "- Do NOT sound generic, corporate, or motivational-poster-ish\n\n"
         "Return ONLY the post text, nothing else."
     )
@@ -252,7 +319,7 @@ def generate_linkedin_post(
     else:
         contents = [uploaded_file, prompt]
 
-    print(f'[Gemini] Generating post for theme: "{theme_name}"...')
+    print(f'[Gemini] Generating {length} post for theme: "{theme_name}"...')
     response = _call_with_retry(
         lambda: client.models.generate_content(
             model="gemini-2.5-flash",
@@ -265,19 +332,19 @@ def generate_linkedin_post(
     return (theme_name, post_text)
 
 
-def generate_three_options(uploaded_file: types.File | str) -> list[tuple[str, str]]:
+def generate_three_options(uploaded_file: types.File | str) -> list[tuple[str, str, str]]:
     """
-    Generate 3 LinkedIn post options, each based on a different G Squared Truth.
-    Returns list of (theme_name, post_text) tuples.
+    Generate 3 LinkedIn post options — Short, Medium, Long — each on a different theme.
+    Returns list of (theme_name, post_text, length_label) tuples.
     """
     themes = pick_random_themes(3)
+    lengths = ["short", "medium", "long"]
     options = []
 
-    for i, theme in enumerate(themes, 1):
-        print(f"\n--- Generating Option {i} of 3 ---")
-        result = generate_linkedin_post(uploaded_file, theme=theme)
-        options.append(result)
-        # Small delay between calls to avoid rate limits
+    for i, (theme, length) in enumerate(zip(themes, lengths), 1):
+        print(f"\n--- Generating {length.upper()} Option {i} of 3 ---")
+        theme_name, post_text = generate_linkedin_post(uploaded_file, theme=theme, length=length)
+        options.append((theme_name, post_text, length))
         if i < 3:
             time.sleep(2)
 
@@ -300,9 +367,11 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
         f"CRITICAL: This post MUST be about the topic above.\n"
         f"Write about it as Greg Grand would — through the lens of sales leadership, "
         f"revenue growth, and building teams. Make it a G Squared Truth even though "
-        f"it's not one of the standard 20. Same voice, same fire, same format.\n\n"
+        f"it's not one of the standard 20. Same voice, same fire, same format.\n"
+        f"Be specific — name the real behaviors, the real mistakes, the real consequences. "
+        f"Give concrete examples. Don't stay at 30,000 feet.\n\n"
+        f"{_LENGTH_SPECS['medium']}\n"
         "STACCATO STYLE RULES (non-negotiable):\n"
-        "- Hook must be under 10 words\n"
         "- One idea per line. Double space between every line.\n"
         "- Structure: Hook -> The Problem -> The Fix -> One clear question at the end\n"
         "- NO exclamation points. Ever.\n"
@@ -312,7 +381,6 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
         "- Be direct, opinionated, confrontational — challenge bad behavior\n"
         "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
         "- NO hashtags. Ever. Do not include any hashtags.\n"
-        "- Keep it under 1300 characters\n"
         "- Do NOT sound generic, corporate, or motivational-poster-ish\n\n"
         "Return ONLY the post text, nothing else."
     )
@@ -389,3 +457,89 @@ def generate_post_image(post_text: str) -> bytes | None:
 
     print("[Gemini] Warning: No image was generated")
     return None
+
+
+# ── AI Sales Leadership Program Generation ──────────────────────────────────
+
+def pick_random_ai_program_themes(count: int = 3) -> list[tuple[str, str]]:
+    """Pick N random, non-repeating themes from the AI Sales Leadership themes."""
+    return random.sample(AI_SALES_LEADERSHIP_THEMES, min(count, len(AI_SALES_LEADERSHIP_THEMES)))
+
+
+def generate_ai_program_post(
+    theme: tuple[str, str] | None = None,
+    length: str = "medium",
+) -> tuple[str, str]:
+    """
+    Generate a single LinkedIn post for the AI Sales Leadership Program.
+    length: 'short', 'medium', or 'long'
+    Returns (theme_name, post_text).
+    """
+    client = get_gemini_client()
+
+    if theme is None:
+        theme = random.choice(AI_SALES_LEADERSHIP_THEMES)
+
+    theme_name, theme_description = theme
+    length_spec = _LENGTH_SPECS.get(length, _LENGTH_SPECS["medium"])
+
+    prompt = (
+        f"{AI_PROGRAM_PERSONA}\n\n"
+        f"{EXAMPLE_POSTS}\n\n"
+        f"YOUR ASSIGNED THEME FOR THIS POST:\n"
+        f'Theme: "{theme_name}"\n'
+        f'Core Truth: "{theme_description}"\n\n'
+        f"CRITICAL: This post MUST be about the theme above — '{theme_name}'.\n"
+        f"The core idea is: {theme_description}\n"
+        f"This is content for The AI Sales Leadership Program. "
+        f"Write through the lens of AI meeting the sales floor — what it means for "
+        f"sales leaders, their teams, their pipeline, and their competitive position. "
+        f"Be specific — name the real behaviors, the real mistakes, the real consequences. "
+        f"Give concrete examples of what good and bad looks like in practice.\n\n"
+        f"OPTIONAL CTA: You may (not required every post) end with a soft reference to "
+        f"{AI_PROGRAM_CTA} — only if it fits naturally. Never force it.\n\n"
+        f"{length_spec}\n"
+        "STACCATO STYLE RULES (non-negotiable):\n"
+        "- One idea per line. Double space between every line.\n"
+        "- NO exclamation points. Ever.\n"
+        "- NO AI words: delve, leverage, landscape, unlock, harness, elevate, foster, navigate, robust\n"
+        "- Use em dashes (—) for dramatic pauses\n"
+        "- Use analogies and metaphors to make points stick\n"
+        "- Be direct, opinionated, confrontational — challenge bad behavior\n"
+        "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
+        "- NO hashtags. Ever. Do not include any hashtags.\n"
+        "- Do NOT sound generic, corporate, or motivational-poster-ish\n\n"
+        "Return ONLY the post text, nothing else."
+    )
+
+    print(f'[Gemini] Generating {length} AI Program post for theme: "{theme_name}"...')
+    response = _call_with_retry(
+        lambda: client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[prompt],
+        )
+    )
+
+    post_text = response.text.strip()
+    print(f"[Gemini] Post generated ({len(post_text)} chars)")
+    return (theme_name, post_text)
+
+
+def generate_three_ai_program_options() -> list[tuple[str, str, str]]:
+    """
+    Generate 3 LinkedIn post options for the AI Sales Leadership Program —
+    Short, Medium, Long — each on a different theme.
+    Returns list of (theme_name, post_text, length_label) tuples.
+    """
+    themes = pick_random_ai_program_themes(3)
+    lengths = ["short", "medium", "long"]
+    options = []
+
+    for i, (theme, length) in enumerate(zip(themes, lengths), 1):
+        print(f"\n--- Generating AI Program {length.upper()} Option {i} of 3 ---")
+        theme_name, post_text = generate_ai_program_post(theme=theme, length=length)
+        options.append((theme_name, post_text, length))
+        if i < 3:
+            time.sleep(2)
+
+    return options

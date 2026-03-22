@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Generated Posts - LinkedIn Content Generator{% endblock %}
+{% block title %}AI Sales Leadership Program - LinkedIn Content Generator{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Your 3 Generated Posts</h1>
-    <p>Short, Medium, and Long options — each a different G Squared Truth, written in your voice. Edit any post inline before posting.</p>
+<div class="page-header ai-program">
+    <h1>The AI Sales Leadership Program</h1>
+    <span class="program-url">theaisalesleader.com</span>
+    <p style="margin-top:8px;">Short, Medium, and Long posts — each a different AI leadership theme, in your voice. Edit inline before posting.</p>
 </div>
 
 {% if post_result %}
@@ -45,18 +46,18 @@
             </div>
             {% if opt.has_image %}
             <div class="post-image" style="margin-top:16px;">
-                <img src="{{ url_for('serve_image', source='session', index=loop.index0) }}" alt="Generated image for {{ opt.theme }}">
+                <img src="{{ url_for('serve_image', source='ai_program', index=loop.index0) }}" alt="Generated image for {{ opt.theme }}">
             </div>
             {% endif %}
         </div>
 
         <div class="post-card-actions">
             <button type="button" class="btn btn-primary"
-                onclick="submitPost('session', {{ loop.index0 }}, '{{ url_for('edit_and_post') }}')">
+                onclick="submitPost('ai_program', {{ loop.index0 }}, '{{ url_for('edit_and_post') }}')">
                 Post Now
             </button>
             <button type="button" class="btn btn-outline"
-                onclick="submitSave('session', {{ loop.index0 }}, '{{ url_for('save_post', index=loop.index0) }}')">
+                onclick="submitSave('ai_program', {{ loop.index0 }}, '{{ url_for('save_post', index=loop.index0) }}')">
                 Save for Later
             </button>
         </div>
@@ -66,12 +67,12 @@
 {% else %}
 <div class="empty-state">
     <div class="empty-icon">
-        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
     </div>
-    <h3>Ready to generate</h3>
-    <p>Click below to pull your latest Dropbox content and generate Short, Medium, and Long LinkedIn posts.</p>
-    <a href="{{ url_for('generate_trigger') }}" class="btn btn-primary btn-lg" id="generateBtn"
-        onclick="showLoading('Generating your posts...', 'Pulling from Dropbox, writing Short + Medium + Long posts, creating images — about 90 seconds')">
+    <h3>Ready to generate AI program posts</h3>
+    <p>Generate Short, Medium, and Long LinkedIn posts promoting The AI Sales Leadership Program — each one a different theme from the 20 AI truths.</p>
+    <a href="{{ url_for('ai_program_trigger') }}" class="btn btn-primary btn-lg" id="generateBtn"
+        onclick="showLoading('Generating AI Program posts...', 'Writing Short + Medium + Long posts across AI leadership themes — about 90 seconds')">
         Generate 3 Posts
     </a>
 </div>
@@ -128,7 +129,6 @@ function showLoading(text, sub) {
     document.getElementById('loadingSubtext').textContent = sub || '';
 }
 
-// Auto-resize and init char counts on page load
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.inline-editor').forEach(function(el, i) {
         autoResize(el);

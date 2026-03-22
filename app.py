@@ -30,6 +30,7 @@ from dropbox_client import download_latest_file, list_files
 from gemini_client import (
     generate_three_options, generate_freestyle_post,
     generate_post_image, upload_file,
+    generate_three_ai_program_options,
 )
 from linkedin_client import post_to_linkedin
 from post import save_options
@@ -45,6 +46,8 @@ _session_posts = []       # list of {"theme": str, "text": str}
 _session_images = []      # list of bytes | None
 _freestyle_post = None    # {"theme": str, "text": str}
 _freestyle_image = None   # bytes | None
+_ai_program_posts = []    # list of {"theme": str, "text": str}
+_ai_program_images = []   # list of bytes | None
 
 
 def _save_image_to_disk(image_bytes, theme):
@@ -96,6 +99,7 @@ def generate():
         options.append({
             "theme": post["theme"],
             "text": post["text"],
+            "length": post.get("length", "medium"),
             "has_image": _session_images[i] is not None if i < len(_session_images) else False,
         })
     return render_template(
@@ -118,20 +122,20 @@ def generate_trigger():
         # Step 3: Upload to Gemini
         uploaded_file = upload_file(local_path, original_name)
 
-        # Step 4: Generate 3 posts
+        # Step 4: Generate 3 posts (short, medium, long)
         options = generate_three_options(uploaded_file)
 
         # Step 5: Generate images
         images = []
-        for theme, text in options:
+        for theme, text, length in options:
             img = generate_post_image(text)
             images.append(img)
 
         # Save for the legacy post.py loader too
-        save_options(options, images)
+        save_options([(t, txt) for t, txt, _ in options], images)
 
         # Store in memory for the web UI
-        _session_posts = [{"theme": t, "text": txt} for t, txt in options]
+        _session_posts = [{"theme": t, "text": txt, "length": length} for t, txt, length in options]
         _session_images = images
 
         # Cleanup temp file
@@ -194,6 +198,51 @@ def freestyle():
     )
 
 
+# ── AI Sales Leadership Program Flow ──────────────────────────────
+
+@app.route("/ai-program")
+def ai_program():
+    """AI Sales Leadership Program content generation page."""
+    options = []
+    for i, post in enumerate(_ai_program_posts):
+        options.append({
+            "theme": post["theme"],
+            "text": post["text"],
+            "length": post.get("length", "medium"),
+            "has_image": _ai_program_images[i] is not None if i < len(_ai_program_images) else False,
+        })
+    return render_template(
+        "ai_program.html",
+        active_page="ai_program",
+        options=options,
+        post_result=session.pop("post_result", None),
+    )
+
+
+@app.route("/ai-program/run")
+def ai_program_trigger():
+    """Generate 3 AI Sales Leadership Program posts."""
+    global _ai_program_posts, _ai_program_images
+
+    try:
+        options = generate_three_ai_program_options()
+
+        images = []
+        for theme, text, length in options:
+            img = generate_post_image(text)
+            images.append(img)
+
+        _ai_program_posts = [{"theme": t, "text": txt, "length": length} for t, txt, length in options]
+        _ai_program_images = images
+
+        flash("3 AI Program posts generated successfully.", "success")
+
+    except Exception as e:
+        flash(f"Generation failed: {e}", "error")
+
+    return redirect(url_for("ai_program"))
+
+
 # ── Saved Posts ───────────────────────────────────────────────────
 
 @app.route("/saved")
@@ -231,10 +280,22 @@ def post_now(index):
             flash("Posted to LinkedIn.", "success")
             return redirect(url_for("freestyle"))
 
+        elif source == "ai_program" and index < len(_ai_program_posts):
+            text = _ai_program_posts[index]["text"]
+            image = _ai_program_images[index] if index < len(_ai_program_images) else None
+            post_id = post_to_linkedin(text, image)
+            session["post_result"] = post_id
+            flash("Posted to LinkedIn.", "success")
+            return redirect(url_for("ai_program"))
+
     except Exception as e:
         flash(f"Failed to post: {e}", "error")
 
-    return redirect(url_for("generate") if source == "session" else url_for("freestyle"))
+    if source == "freestyle":
+        return redirect(url_for("freestyle"))
+    elif source == "ai_program":
+        return redirect(url_for("ai_program"))
+    return redirect(url_for("generate"))
 
 
 @app.route("/post-saved/<int:index>", methods=["POST"])
@@ -259,24 +320,35 @@ def post_saved(index):
 
 @app.route("/save/<int:index>", methods=["POST"])
 def save_post(index):
-    """Save a generated/freestyle post for later."""
+    """Save a generated/freestyle post for later. Uses inline-edited text if provided."""
     source = request.form.get("source", "session")
+    # Use text from inline editor if submitted (may differ from in-memory version)
+    edited_text = request.form.get("text", "").strip()
 
     if source == "session" and index < len(_session_posts):
         post = _session_posts[index]
+        text = edited_text if edited_text else post["text"]
         image = _session_images[index] if index < len(_session_images) else None
         img_path = _save_image_to_disk(image, post["theme"])
-        total = saved_posts.save_post(post["theme"], post["text"], img_path)
+        total = saved_posts.save_post(post["theme"], text, img_path)
         flash(f"Saved. You now have {total} saved post(s).", "success")
         return redirect(url_for("generate"))
 
     elif source == "freestyle" and _freestyle_post:
+        text = edited_text if edited_text else _freestyle_post["text"]
         img_path = _save_image_to_disk(_freestyle_image, _freestyle_post["theme"])
-        total = saved_posts.save_post(
-            _freestyle_post["theme"], _freestyle_post["text"], img_path
-        )
+        total = saved_posts.save_post(_freestyle_post["theme"], text, img_path)
         flash(f"Saved. You now have {total} saved post(s).", "success")
         return redirect(url_for("freestyle"))
+
+    elif source == "ai_program" and index < len(_ai_program_posts):
+        post = _ai_program_posts[index]
+        text = edited_text if edited_text else post["text"]
+        image = _ai_program_images[index] if index < len(_ai_program_images) else None
+        img_path = _save_image_to_disk(image, post["theme"])
+        total = saved_posts.save_post(post["theme"], text, img_path)
+        flash(f"Saved. You now have {total} saved post(s).", "success")
+        return redirect(url_for("ai_program"))
 
     flash("Nothing to save.", "error")
     return redirect(url_for("dashboard"))
@@ -329,6 +401,8 @@ def edit_and_post():
         image = _session_images[index]
     elif source == "freestyle":
         image = _freestyle_image
+    elif source == "ai_program" and index < len(_ai_program_images):
+        image = _ai_program_images[index]
     elif source == "saved":
         posts = saved_posts.get_saved_posts()
         if index < len(posts):
@@ -349,6 +423,8 @@ def edit_and_post():
 
     if source == "freestyle":
         return redirect(url_for("freestyle"))
+    elif source == "ai_program":
+        return redirect(url_for("ai_program"))
     elif source == "saved":
         return redirect(url_for("saved"))
     return redirect(url_for("generate"))
@@ -365,6 +441,8 @@ def serve_image(source, index):
         image_bytes = _session_images[index]
     elif source == "freestyle":
         image_bytes = _freestyle_image
+    elif source == "ai_program" and index < len(_ai_program_images):
+        image_bytes = _ai_program_images[index]
 
     if image_bytes:
         return Response(image_bytes, mimetype="image/png")

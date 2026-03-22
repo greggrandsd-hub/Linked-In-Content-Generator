@@ -17,7 +17,8 @@
             </a>
             <ul class="nav-links">
                 <li><a href="{{ url_for('dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a></li>
-                <li><a href="{{ url_for('generate') }}" class="{% if active_page == 'generate' %}active{% endif %}">Generate</a></li>
+                <li><a href="{{ url_for('generate') }}" class="{% if active_page == 'generate' %}active{% endif %}">G² Truths</a></li>
+                <li><a href="{{ url_for('ai_program') }}" class="{% if active_page == 'ai_program' %}active{% endif %}">AI Program</a></li>
                 <li><a href="{{ url_for('freestyle') }}" class="{% if active_page == 'freestyle' %}active{% endif %}">Freestyle</a></li>
                 <li>
                     <a href="{{ url_for('saved') }}" class="{% if active_page == 'saved' %}active{% endif %}">

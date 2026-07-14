@@ -34,20 +34,21 @@ SITE_BASE_URL = (
     os.getenv("SITE_BASE_URL")
     or "https://greggrandsd-hub.github.io/Linked-In-Content-Generator"
 ).rstrip("/")
-SITE_NAME = os.getenv("SITE_NAME", "The AI Sales Leader — Insights")
+SITE_NAME = os.getenv("SITE_NAME", "The AI Sales Leader: Insights")
 SITE_TAGLINE = os.getenv(
     "SITE_TAGLINE",
     "Straight answers on sales leadership, revenue growth, and AI-powered "
-    "sales teams — from Greg Grand.",
+    "sales teams, from Greg Grand.",
 )
 AUTHOR_NAME = os.getenv("AUTHOR_NAME", "Greg Grand")
 AUTHOR_BIO = os.getenv(
     "AUTHOR_BIO",
     "Greg Grand is the founder of G Squared Advisors and The AI Sales Leader™. "
-    "A Vistage speaker and fractional CRO with 30 years in enterprise sales at "
-    "Google, Apple, and Celestica, he certifies sales leaders to run AI-powered "
-    "teams (CASL™) and helps CEOs build revenue engines that scale on process, "
-    "not heroics. More at theaisalesleader.com.",
+    "A Vistage speaker and Fractional CRO with 30+ years in enterprise sales "
+    "leadership, he built the Google and Apple accounts at Celestica, driving "
+    "hundreds of millions in revenue. Today he certifies sales leaders to run "
+    "AI-powered teams (CASL™) and helps CEOs build revenue engines that scale "
+    "on process, not heroics. More at theaisalesleader.com.",
 )
 AUTHOR_LINKEDIN_URL = os.getenv("AUTHOR_LINKEDIN_URL", "https://www.linkedin.com/in/greggrand/")
 AUTHOR_WEBSITE_URL = os.getenv("AUTHOR_WEBSITE_URL", "https://theaisalesleader.com")

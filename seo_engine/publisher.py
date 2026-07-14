@@ -407,5 +407,6 @@ def build_site() -> int:
     if host and not host.endswith(".github.io"):
         write("CNAME", host + "\n")
 
-    print(f"[SEO Engine] Site built: {len(articles)} article(s) → docs/")
+    # ASCII only: Windows consoles default to cp1252 and crash on unicode.
+    print(f"[SEO Engine] Site built: {len(articles)} article(s) -> docs/")
     return len(articles)

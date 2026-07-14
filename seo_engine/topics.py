@@ -32,8 +32,8 @@ SEED_TOPICS = [
     {"keyword": "how to roll out AI to a sales team", "title": "How to Roll Out AI to a Sales Team (System First, Tools Second)"},
     {"keyword": "how to use AI for sales prospecting research", "title": "How to Use AI for Sales Prospecting Research (Without Sounding Like a Robot)"},
     {"keyword": "how to use AI to prepare for a discovery call", "title": "How to Use AI to Prepare for a Discovery Call in 15 Minutes"},
-    {"keyword": "can AI write cold emails that don't sound like AI", "title": "Can AI Write Cold Emails That Don't Sound Like AI? Yes — Here's How"},
-    {"keyword": "what is a fractional CRO and when do you need one", "title": "What Is a Fractional CRO — and When Does Your Company Need One?"},
+    {"keyword": "can AI write cold emails that don't sound like AI", "title": "Can AI Write Cold Emails That Don't Sound Like AI? Yes: Here's How"},
+    {"keyword": "what is a fractional CRO and when do you need one", "title": "What Is a Fractional CRO, and When Does Your Company Need One?"},
     {"keyword": "fractional CRO vs VP of sales which to hire", "title": "Fractional CRO vs. VP of Sales: Which Should You Hire First?"},
     {"keyword": "how to measure ROI of AI tools for sales teams", "title": "How to Measure the ROI of AI Tools on a Sales Team"},
     {"keyword": "how to use AI for sales forecasting small business", "title": "AI Sales Forecasting for Small Business: Math In, Hope Out"},
@@ -55,13 +55,13 @@ SEED_TOPICS = [
     {"keyword": "how to coach sales managers to coach reps", "title": "How to Coach Sales Managers Who Only Report the News"},
     {"keyword": "signs of a broken sales pipeline", "title": "8 Signs of a Broken Sales Pipeline (and How to Fix Each One)"},
     {"keyword": "how to run a sales pipeline review meeting", "title": "How to Run a Pipeline Review Meeting That Isn't a Fiction Reading"},
-    {"keyword": "hiring salespeople for character vs experience", "title": "Hiring Salespeople: Character vs. Experience — Which Wins?"},
+    {"keyword": "hiring salespeople for character vs experience", "title": "Hiring Salespeople: Character vs. Experience, Which Wins?"},
     {"keyword": "why being nice is hurting your sales team", "title": "The Niceness Trap: Why Avoiding Hard Conversations Is Selfish"},
     {"keyword": "how often should a CEO talk to customers", "title": "How Often Should a CEO Talk to Customers? (More Than You Do)"},
     {"keyword": "how to simplify a complex sales process", "title": "How to Simplify a Sales Process That's Choking Your Growth"},
     {"keyword": "what is revenue friction and how to remove it", "title": "What Is Revenue Friction? Find Where Money Gets Stuck and Kill It"},
     {"keyword": "how to make sales predictable with math", "title": "Sales Is Math: How to Make Revenue Predictable"},
-    {"keyword": "why we've always done it this way is expensive", "title": "\"We've Always Done It This Way\" — the Most Expensive Phrase in Business"},
+    {"keyword": "why we've always done it this way is expensive", "title": "\"We've Always Done It This Way\" Is the Most Expensive Phrase in Business"},
     {"keyword": "how to create ownership on a sales team", "title": "If Everyone Is Responsible, No One Is: Creating Real Ownership in Sales"},
     {"keyword": "data driven sales management for small business", "title": "Data Over Drama: Data-Driven Sales Management for Small Business"},
     {"keyword": "how to speed up sales execution", "title": "Speed of Execution: Why the Fastest Company Usually Wins"},
@@ -70,10 +70,10 @@ SEED_TOPICS = [
     {"keyword": "sales quota setting for small business", "title": "How to Set Sales Quotas for a Small Business (Napkin-Simple Math)"},
     {"keyword": "difference between hunting and farming in sales", "title": "Hunting vs. Farming in Sales: Why You Must Decouple Them"},
     {"keyword": "how to reduce ramp time for new sales hires", "title": "How to Cut New Sales Hire Ramp Time in Half"},
-    {"keyword": "should you cap sales commissions", "title": "Should You Cap Sales Commissions? No — Here's the Math"},
+    {"keyword": "should you cap sales commissions", "title": "Should You Cap Sales Commissions? No: Here's the Math"},
     {"keyword": "how to tell if a deal will actually close", "title": "How to Tell if a Deal Will Actually Close (a Forecast Is Not a Feeling)"},
     {"keyword": "sales team accountability framework", "title": "A Simple Sales Accountability Framework (Accountability Is Love)"},
-    {"keyword": "why sales managers fail in their first year", "title": "Why New Sales Managers Fail in Year One — the Coaching Deficit"},
+    {"keyword": "why sales managers fail in their first year", "title": "Why New Sales Managers Fail in Year One: the Coaching Deficit"},
     {"keyword": "how many touches does it take to book a meeting", "title": "How Many Touches to Book a Meeting? Activity + Process = Results"},
     {"keyword": "ceo guide to fixing underperforming sales team", "title": "The CEO's Guide to Fixing an Underperforming Sales Team"},
     {"keyword": "how to get honest feedback as a CEO", "title": "The Echo Chamber: How CEOs Get Honest Feedback Before It's Too Late"},
@@ -166,12 +166,8 @@ def _refill(queue: list[dict]) -> list[dict]:
         )
     )
 
-    text = response.text.strip()
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
-    new_topics = json.loads(text.strip())
+    from seo_engine.generator import _parse_json_response
+    new_topics = _parse_json_response(response.text)
 
     existing_keywords = {t["keyword"].lower() for t in queue}
     added = 0

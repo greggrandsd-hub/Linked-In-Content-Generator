@@ -212,6 +212,70 @@ def post_to_linkedin(
         resp.raise_for_status()
 
 
+def post_comment(post_urn: str, comment_text: str) -> dict:
+    """
+    Post a comment on an existing LinkedIn post or share.
+
+    Args:
+        post_urn: The URN of the target post. Accepts forms:
+            - urn:li:share:1234567890
+            - urn:li:ugcPost:1234567890
+            - urn:li:activity:1234567890
+            If the bare numeric activity ID is passed, it is wrapped as urn:li:activity:.
+        comment_text: The comment body. Apply Voice DNA scrub before calling.
+
+    Returns:
+        Dict with at minimum {"ok": bool, "status": int, "comment_id": str|None, "raw": str}.
+
+    LinkedIn endpoint: POST /v2/socialActions/{encoded_share_urn}/comments
+    Required scope: w_member_social (already in SCOPES at top of file).
+    """
+    access_token = get_access_token()
+    person_urn = get_my_profile_urn(access_token)
+
+    if not post_urn.startswith("urn:li:"):
+        # Treat bare numeric IDs as activity URNs by default
+        post_urn = f"urn:li:activity:{post_urn}"
+
+    from urllib.parse import quote
+    encoded = quote(post_urn, safe="")
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+        "X-Restli-Protocol-Version": "2.0.0",
+        "LinkedIn-Version": "202401",
+    }
+
+    payload = {
+        "actor": person_urn,
+        "object": post_urn,
+        "message": {
+            "text": comment_text,
+        },
+    }
+
+    print(f"[LinkedIn] Posting comment on {post_urn}...")
+    resp = requests.post(
+        f"https://api.linkedin.com/v2/socialActions/{encoded}/comments",
+        headers=headers,
+        json=payload,
+        timeout=30,
+    )
+
+    body_text = resp.text[:500] if resp.text else ""
+    if resp.status_code in (200, 201):
+        try:
+            comment_id = resp.json().get("id") or resp.headers.get("X-RestLi-Id", "")
+        except Exception:
+            comment_id = resp.headers.get("X-RestLi-Id", "")
+        print(f"[LinkedIn] Comment posted. ID: {comment_id}")
+        return {"ok": True, "status": resp.status_code, "comment_id": comment_id, "raw": body_text}
+
+    print(f"[LinkedIn] Comment failed: {resp.status_code} - {body_text}")
+    return {"ok": False, "status": resp.status_code, "comment_id": None, "raw": body_text}
+
+
 def _upload_image(access_token: str, person_urn: str, image_bytes: bytes) -> str:
     """Upload an image to LinkedIn and return its asset URN."""
     headers = {

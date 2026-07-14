@@ -26,10 +26,9 @@ from flask import (
 )
 
 # Import existing project modules
-from dropbox_client import download_latest_file, list_files
 from gemini_client import (
     generate_three_options, generate_freestyle_post,
-    generate_post_image, upload_file,
+    generate_post_image,
 )
 from linkedin_client import post_to_linkedin
 from post import save_options
@@ -112,16 +111,10 @@ def generate_trigger():
     global _session_posts, _session_images
 
     try:
-        # Step 1-2: Dropbox
-        local_path, original_name = download_latest_file()
+        # Generate 3 posts from the 20 G Squared Truths (no external file needed)
+        options = generate_three_options("")
 
-        # Step 3: Upload to Gemini
-        uploaded_file = upload_file(local_path, original_name)
-
-        # Step 4: Generate 3 posts
-        options = generate_three_options(uploaded_file)
-
-        # Step 5: Generate images
+        # Generate images
         images = []
         for theme, text in options:
             img = generate_post_image(text)
@@ -133,9 +126,6 @@ def generate_trigger():
         # Store in memory for the web UI
         _session_posts = [{"theme": t, "text": txt} for t, txt in options]
         _session_images = images
-
-        # Cleanup temp file
-        os.unlink(local_path)
 
         flash("3 posts generated successfully.", "success")
 

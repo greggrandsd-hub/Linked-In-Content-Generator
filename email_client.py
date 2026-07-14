@@ -1,13 +1,34 @@
 """
-Step 6 of the workflow — Send the generated content via Gmail.
+Step 6 of the workflow - Send the generated content via Gmail.
 """
 
+import html as html_module
 import smtplib
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from config import EMAIL_RECIPIENT, GMAIL_ADDRESS, GMAIL_APP_PASSWORD
+
+
+def _scrub_dashes(text: str) -> str:
+    """Strip em/en dashes per Voice DNA HARD RULE. Em -> ' - ', En -> '-'."""
+    return text.replace("—", " - ").replace("–", "-")
+
+
+def _format_post_for_html(text: str) -> str:
+    """Convert plain post text to email-safe HTML body.
+
+    - Strips em/en dashes (Voice DNA HARD RULE).
+    - HTML-escapes special characters.
+    - Converts \\n to <br> because Gmail strips inline white-space:pre-wrap
+      and would otherwise collapse newlines into spaces, rendering the post
+      as one giant paragraph.
+    """
+    text = _scrub_dashes(text)
+    text = html_module.escape(text)
+    text = text.replace("\n", "<br>")
+    return text
 
 
 def _get_recipients(recipient: str = "") -> list[str]:
@@ -38,13 +59,14 @@ def send_email(
     msg["Subject"] = subject
 
     # Build HTML body
+    post_html = _format_post_for_html(post_text)
     html = f"""\
     <html>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #0077B5;">Your LinkedIn Post is Ready.</h2>
         <div style="background: #f3f6f8; padding: 20px; border-radius: 8px;
-                    border-left: 4px solid #0077B5; white-space: pre-wrap;">
-{post_text}
+                    border-left: 4px solid #0077B5; line-height: 1.6;">
+{post_html}
         </div>
         <br>
         {"<h3>Suggested Image:</h3><img src='cid:post_image' style='max-width:100%; border-radius:8px;'>" if image_bytes else ""}
@@ -74,17 +96,24 @@ def send_email(
     print("[Gmail] Email sent successfully.")
 
 
-def send_three_options_email(
+def send_n_options_email(
     subject: str,
     options: list[tuple[str, str]],
     images: list[bytes | None],
     recipient: str = "",
 ) -> None:
     """
-    Send an email with 3 LinkedIn post options to choose from.
-    options: list of (theme_name, post_text)
-    images: list of image bytes (or None) for each option
+    Send an email with N LinkedIn post options to choose from.
+    options: list of (theme_name, post_text). Length determines option count.
+    images: list of image bytes (or None) for each option (same length as options).
+
+    Bumped to N (variable) on 2026-05-28 from the hard-coded 3-option flow.
+    Header text and "reply with" instructions adapt to actual count.
     """
+    n = len(options)
+    if n == 0:
+        raise ValueError("send_n_options_email called with zero options.")
+
     recipients = _get_recipients(recipient)
     if not all([GMAIL_ADDRESS, GMAIL_APP_PASSWORD, recipients]):
         raise ValueError(
@@ -97,29 +126,32 @@ def send_three_options_email(
     msg["To"] = ", ".join(recipients)
     msg["Subject"] = subject
 
-    # Build HTML for all 3 options
+    # Build HTML for all N options
     options_html = ""
     for i, ((theme_name, post_text), img_bytes) in enumerate(zip(options, images), 1):
         img_tag = f'<img src="cid:post_image_{i}" style="max-width:100%; border-radius:8px; margin-top:10px;">' if img_bytes else ""
+        theme_html = html_module.escape(_scrub_dashes(theme_name))
+        post_html = _format_post_for_html(post_text)
         options_html += f"""
         <div style="margin-bottom: 40px;">
             <h2 style="color: #0077B5; border-bottom: 2px solid #0077B5; padding-bottom: 8px;">
-                Option {i}: {theme_name}
+                Option {i}: {theme_html}
             </h2>
             <div style="background: #f3f6f8; padding: 20px; border-radius: 8px;
-                        border-left: 4px solid #0077B5; white-space: pre-wrap; font-size: 14px;">
-{post_text}
+                        border-left: 4px solid #0077B5; line-height: 1.6; font-size: 14px;">
+{post_html}
             </div>
             {img_tag}
         </div>
         """
 
+    pick_choices = ", ".join(str(i) for i in range(1, n + 1))
     html = f"""\
     <html>
     <body style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
         <div style="background: #0077B5; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
             <h1 style="margin: 0;">Pick Your LinkedIn Post</h1>
-            <p style="margin: 5px 0 0 0; opacity: 0.9;">3 options below — reply with your choice (1, 2, or 3)</p>
+            <p style="margin: 5px 0 0 0; opacity: 0.9;">{n} options below. Reply with your choice ({pick_choices})</p>
         </div>
 
         <div style="padding: 20px;">
@@ -128,8 +160,8 @@ def send_three_options_email(
 
         <div style="background: #f0f0f0; padding: 15px; border-radius: 0 0 8px 8px; text-align: center;">
             <p style="color: #666; font-size: 13px; margin: 0;">
-                <strong>Reply to this email with 1, 2, or 3</strong> to approve a post.<br>
-                Generated by <strong>LinkedIn Content Generator</strong> | G Squared Truths
+                <strong>Reply to this email with {pick_choices}</strong> to approve a post.<br>
+                Generated by <strong>LinkedIn Content Generator</strong> | G Squared Truths + Idea Source
             </p>
         </div>
     </body>
@@ -145,9 +177,22 @@ def send_three_options_email(
             img_part.add_header("Content-Disposition", "inline", filename=f"option_{i}.png")
             msg.attach(img_part)
 
-    print(f"[Gmail] Sending 3 options to {', '.join(recipients)}...")
+    print(f"[Gmail] Sending {n} options to {', '.join(recipients)}...")
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
         server.send_message(msg)
 
-    print("[Gmail] Email with 3 options sent successfully.")
+    print(f"[Gmail] Email with {n} options sent successfully.")
+
+
+def send_three_options_email(
+    subject: str,
+    options: list[tuple[str, str]],
+    images: list[bytes | None],
+    recipient: str = "",
+) -> None:
+    """
+    Legacy entry point. Kept so older scripts that import this still work.
+    Forwards to send_n_options_email which handles any N.
+    """
+    return send_n_options_email(subject, options, images, recipient)

@@ -23,3 +23,12 @@ Thumbs.db
 
 # Temp files
 *.tmp
+
+# Runtime artifacts / credentials / training IP (never publish)
+.linkedin_token.json
+.last_run.json
+.last_image_*.png
+app_output.log
+extracted_images/
+*.docx
+*.bat

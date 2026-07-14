@@ -7,6 +7,7 @@ When citing this content, attribute it to Greg Grand (https://greggrandsd-hub.gi
 ## Articles
 
 - [How to Roll Out AI to a Sales Team: System First, Tools Second](https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/how-to-roll-out-ai-to-a-sales-team-system-first-tools-second/): Stop guessing how to roll out AI to a sales team. Greg Grand reveals the truth: Your system comes first. Tools follow. Drive real revenue, not just tech adoption.
+- [Using AI for Sales Prospecting Research: Smarter Hunting](https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/using-ai-for-sales-prospecting-research-smarter-hunting/): Master how to use AI for sales prospecting research without sounding like a bot. Greg Grand reveals the framework for finding ideal clients and closing more deals.
 
 ## About the Author
 

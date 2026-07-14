@@ -42,21 +42,37 @@ Repo → **Settings → Pages** → Source: **Deploy from a branch** →
 Branch: **main**, folder: **/docs** → Save.
 
 Your site goes live at
-`https://greggrandsd-hub.github.io/Linked-In-Content-Generator/`.
+`https://greggrandsd-hub.github.io/Linked-In-Content-Generator/` immediately.
 
-> Using a custom domain later (recommended once you have one — it builds
-> domain authority you own): set it in the Pages settings, then set the
-> repository variable `SITE_BASE_URL` to that domain so every canonical URL,
-> sitemap entry, and schema block points at it.
+### 3. Put it on YOUR domain (do this — it's the whole point)
 
-### 3. That's it
+Two months of SEO equity lives at **theaisalesleader.com**, so the articles
+should build that domain's authority, not github.io's. Serve the engine at
+`insights.theaisalesleader.com`:
+
+1. In your DNS provider (wherever theaisalesleader.com is registered), add a
+   CNAME record: host `insights` → value `greggrandsd-hub.github.io`
+2. Repo → **Settings → Pages → Custom domain** → enter
+   `insights.theaisalesleader.com` → Save, and tick **Enforce HTTPS** once the
+   certificate is issued (a few minutes)
+3. Repo → **Settings → Secrets and variables → Actions → Variables** → add
+   `SITE_BASE_URL` = `https://insights.theaisalesleader.com`
+
+Every canonical URL, sitemap entry, schema block, and the CNAME file then
+point at your domain automatically. Your existing site is untouched — the
+subdomain lives alongside it, and every article links back to
+theaisalesleader.com. (If your main site is WordPress and you'd rather have
+articles land directly in its blog via the WordPress API, that's a small
+add-on to the engine — say the word.)
+
+### 4. That's it
 
 The workflow in `.github/workflows/seo-engine.yml` runs every morning at
 7:00 AM ET, publishes the article, commits it, and the site updates itself.
 You can also trigger it manually: **Actions → SEO Engine → Run workflow**,
 or click **Publish Next Article Now** in the web UI's SEO Engine tab.
 
-### 4. Tell Google you exist (one time)
+### 5. Tell Google you exist (one time)
 
 - Add the site to [Google Search Console](https://search.google.com/search-console)
   and submit `sitemap.xml`. Do the same in

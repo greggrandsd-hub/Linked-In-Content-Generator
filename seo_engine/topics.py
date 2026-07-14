@@ -27,6 +27,22 @@ REFILL_BATCH_SIZE = 20
 # Long-tail, question-intent keywords a new site can actually rank for,
 # mapped loosely to the 20 G Squared Truths. Each becomes one article.
 SEED_TOPICS = [
+    # ── AI sales leadership (Greg's current positioning: The AI Sales Leader™,
+    #    CASL™, REAP™, fractional CRO) — these publish first ──
+    {"keyword": "how to roll out AI to a sales team", "title": "How to Roll Out AI to a Sales Team (System First, Tools Second)"},
+    {"keyword": "how to use AI for sales prospecting research", "title": "How to Use AI for Sales Prospecting Research (Without Sounding Like a Robot)"},
+    {"keyword": "how to use AI to prepare for a discovery call", "title": "How to Use AI to Prepare for a Discovery Call in 15 Minutes"},
+    {"keyword": "can AI write cold emails that don't sound like AI", "title": "Can AI Write Cold Emails That Don't Sound Like AI? Yes — Here's How"},
+    {"keyword": "what is a fractional CRO and when do you need one", "title": "What Is a Fractional CRO — and When Does Your Company Need One?"},
+    {"keyword": "fractional CRO vs VP of sales which to hire", "title": "Fractional CRO vs. VP of Sales: Which Should You Hire First?"},
+    {"keyword": "how to measure ROI of AI tools for sales teams", "title": "How to Measure the ROI of AI Tools on a Sales Team"},
+    {"keyword": "how to use AI for sales forecasting small business", "title": "AI Sales Forecasting for Small Business: Math In, Hope Out"},
+    {"keyword": "how to use AI roleplay for sales objection handling", "title": "AI Roleplay for Objection Handling: Practice Before It Costs You a Deal"},
+    {"keyword": "how to grow revenue from existing accounts", "title": "How to Grow Revenue From Accounts You've Already Won"},
+    {"keyword": "why AI sales tools fail without a sales process", "title": "Why AI Sales Tools Fail Without a Sales Process Underneath"},
+    {"keyword": "how sales managers should coach with AI call recordings", "title": "How Sales Managers Should Coach With AI Call Recordings"},
+
+    # ── Core sales leadership (G Squared Truths) ──
     {"keyword": "why is my sales team not hitting quota", "title": "Why Is My Sales Team Not Hitting Quota? The 5 Real Reasons"},
     {"keyword": "how to fix an inaccurate sales forecast", "title": "How to Fix an Inaccurate Sales Forecast (Stop Forecasting Hope)"},
     {"keyword": "how to hold salespeople accountable without micromanaging", "title": "How to Hold Salespeople Accountable Without Micromanaging"},
@@ -126,12 +142,14 @@ def _refill(queue: list[dict]) -> list[dict]:
 
     existing = ", ".join(t["keyword"] for t in queue)
     prompt = (
-        "You are an SEO strategist for a sales-leadership expert whose audience "
-        "is CEOs, founders, and revenue leaders of small and mid-size companies. "
+        "You are an SEO strategist for Greg Grand (The AI Sales Leader™, G Squared "
+        "Advisors) — a fractional CRO and Vistage speaker whose audience is CEOs, "
+        "founders, and revenue leaders of small and mid-size companies. "
         f"Generate {REFILL_BATCH_SIZE} NEW long-tail, question-intent search keywords "
         "this audience types into Google, ChatGPT, or Perplexity — problems about "
         "sales teams, forecasting, pipeline, comp plans, sales managers, hiring "
-        "reps, accountability, and scaling revenue.\n\n"
+        "reps, accountability, scaling revenue, and putting AI to work inside "
+        "sales teams (prospecting, call prep, coaching, forecasting).\n\n"
         "Rules:\n"
         "- Long-tail (5+ words), low-competition, specific problems\n"
         "- Question or how-to phrasing preferred\n"

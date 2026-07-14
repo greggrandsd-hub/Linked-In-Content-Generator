@@ -26,24 +26,31 @@ LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET", "")
 LINKEDIN_ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN", "")
 
 # ── SEO / AEO / GEO Engine ───────────────────────────────────────────────────
-# Where the generated site will live. Default: this repo's GitHub Pages URL.
+# Where the generated site will live. Target: insights.theaisalesleader.com
+# (a subdomain of Greg's real site, so every article builds HIS domain's
+# authority). Until that DNS record exists, it serves from GitHub Pages —
+# flip it by setting the SITE_BASE_URL repository variable / env var.
 SITE_BASE_URL = (
     os.getenv("SITE_BASE_URL")
     or "https://greggrandsd-hub.github.io/Linked-In-Content-Generator"
 ).rstrip("/")
-SITE_NAME = os.getenv("SITE_NAME", "G Squared Truths")
+SITE_NAME = os.getenv("SITE_NAME", "The AI Sales Leader — Insights")
 SITE_TAGLINE = os.getenv(
     "SITE_TAGLINE",
-    "No-nonsense sales leadership answers for CEOs, founders, and revenue leaders.",
+    "Straight answers on sales leadership, revenue growth, and AI-powered "
+    "sales teams — from Greg Grand.",
 )
 AUTHOR_NAME = os.getenv("AUTHOR_NAME", "Greg Grand")
 AUTHOR_BIO = os.getenv(
     "AUTHOR_BIO",
-    "Greg Grand is a sales leadership strategist and Vistage speaker who helps "
-    "CEOs, founders, and revenue leaders build sales teams that scale on "
-    "process, not heroics — the G Squared Truths framework.",
+    "Greg Grand is the founder of G Squared Advisors and The AI Sales Leader™. "
+    "A Vistage speaker and fractional CRO with 30 years in enterprise sales at "
+    "Google, Apple, and Celestica, he certifies sales leaders to run AI-powered "
+    "teams (CASL™) and helps CEOs build revenue engines that scale on process, "
+    "not heroics. More at theaisalesleader.com.",
 )
 AUTHOR_LINKEDIN_URL = os.getenv("AUTHOR_LINKEDIN_URL", "https://www.linkedin.com/in/greggrand/")
+AUTHOR_WEBSITE_URL = os.getenv("AUTHOR_WEBSITE_URL", "https://theaisalesleader.com")
 
 # ── Voice / Persona ──────────────────────────────────────────────────────────
 LINKEDIN_PERSONA = os.getenv(

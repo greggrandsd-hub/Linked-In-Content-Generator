@@ -19,11 +19,13 @@ import html
 import json
 import os
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 from config import (
     AUTHOR_BIO,
     AUTHOR_LINKEDIN_URL,
     AUTHOR_NAME,
+    AUTHOR_WEBSITE_URL,
     SITE_BASE_URL,
     SITE_NAME,
     SITE_TAGLINE,
@@ -200,8 +202,9 @@ def _render_article_page(article: dict, all_articles: list[dict]) -> str:
     parts.append(
         '<div class="cta"><strong>Want this fixed in your company?</strong><br>'
         f"Connect with {_esc(AUTHOR_NAME)} on "
-        f'<a href="{_esc(AUTHOR_LINKEDIN_URL)}">LinkedIn</a> for daily G Squared '
-        "Truths on sales leadership, or bring him in to work with your team.</div>"
+        f'<a href="{_esc(AUTHOR_LINKEDIN_URL)}">LinkedIn</a>, or learn about '
+        f'fractional CRO work and the CASL&trade; certification at '
+        f'<a href="{_esc(AUTHOR_WEBSITE_URL)}">theaisalesleader.com</a>.</div>'
     )
 
     # E-E-A-T author box
@@ -220,7 +223,8 @@ def _render_article_page(article: dict, all_articles: list[dict]) -> str:
             "author": {
                 "@type": "Person",
                 "name": AUTHOR_NAME,
-                "url": AUTHOR_LINKEDIN_URL,
+                "url": AUTHOR_WEBSITE_URL,
+                "sameAs": [AUTHOR_LINKEDIN_URL, AUTHOR_WEBSITE_URL],
                 "description": AUTHOR_BIO,
             },
             "publisher": {"@type": "Organization", "name": SITE_NAME, "url": SITE_BASE_URL},
@@ -338,6 +342,7 @@ def _render_llms_txt(articles: list[dict]) -> str:
         "## About the Author",
         "",
         AUTHOR_BIO,
+        f"Website: {AUTHOR_WEBSITE_URL}",
         f"LinkedIn: {AUTHOR_LINKEDIN_URL}",
     ]
     return "\n".join(lines) + "\n"
@@ -395,6 +400,12 @@ def build_site() -> int:
     write("feed.xml", _render_rss(articles))
     # Tell GitHub Pages not to run Jekyll — we ship final HTML.
     write(".nojekyll", "")
+
+    # Custom domain: when SITE_BASE_URL points at Greg's own domain (e.g.
+    # insights.theaisalesleader.com), GitHub Pages needs a CNAME file.
+    host = urlparse(SITE_BASE_URL).netloc
+    if host and not host.endswith(".github.io"):
+        write("CNAME", host + "\n")
 
     print(f"[SEO Engine] Site built: {len(articles)} article(s) → docs/")
     return len(articles)

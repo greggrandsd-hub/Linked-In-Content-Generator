@@ -1,23 +1,17 @@
-# G Squared SEO/AEO/GEO Engine — fully automated daily publishing.
+# G Squared SEO/AEO/GEO Engine — manual trigger only.
 #
-# Every day at 7:00 AM ET this workflow:
-#   1. Generates the next keyword-targeted article (Gemini, in Greg's voice)
-#   2. Rebuilds the static site under docs/
-#   3. Commits the new article + site back to the repo
-#   4. Emails Greg the link and a companion LinkedIn post (if Gmail secrets set)
+# The DAILY publish runs on Greg's machine via the Windows scheduled task
+# `SEOEngineDaily` (7:05 AM, entry point _BACKUPS/seo_engine_daily_run.bat in
+# the Git Test Folder repo), which reads the local .env so no GitHub secret is
+# needed. The cloud cron was removed 2026-07-14 to prevent double publishing.
 #
-# One-time setup (see SEO_ENGINE.md):
-#   - Repo Settings → Secrets and variables → Actions → add GEMINI_API_KEY
-#     (optional: GMAIL_ADDRESS, GMAIL_APP_PASSWORD, EMAIL_RECIPIENT)
-#   - Repo Settings → Pages → Deploy from a branch → main → /docs
-#
-# You can also trigger a run manually: Actions tab → SEO Engine → Run workflow.
+# This workflow remains as a manual fallback: Actions tab → SEO Engine →
+# Run workflow. For it to succeed, the GEMINI_API_KEY repo secret must exist
+# (optional: GMAIL_ADDRESS, GMAIL_APP_PASSWORD, EMAIL_RECIPIENT).
 
 name: SEO Engine
 
 on:
-  schedule:
-    - cron: "0 11 * * *"   # 11:00 UTC = 7:00 AM ET (6:00 AM during DST)
   workflow_dispatch: {}
 
 permissions:

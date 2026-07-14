@@ -26,6 +26,7 @@ from config import (
     AUTHOR_LINKEDIN_URL,
     AUTHOR_NAME,
     AUTHOR_WEBSITE_URL,
+    INDEXNOW_KEY,
     SITE_BASE_URL,
     SITE_NAME,
     SITE_TAGLINE,
@@ -406,6 +407,26 @@ def build_site() -> int:
     host = urlparse(SITE_BASE_URL).netloc
     if host and not host.endswith(".github.io"):
         write("CNAME", host + "\n")
+
+    # IndexNow key file: Bing verifies pings by fetching this from the site.
+    if INDEXNOW_KEY:
+        write(f"{INDEXNOW_KEY}.txt", INDEXNOW_KEY)
+
+    # Machine-readable heartbeat for the SEO Command Center dashboard. Served
+    # from the live site, so a fresh timestamp here proves the WHOLE chain
+    # worked: generate -> build -> git push -> Pages deploy.
+    from seo_engine import topics as _topics
+    write("status.json", json.dumps({
+        "last_build_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "article_count": len(articles),
+        "topics_remaining": _topics.remaining_count(),
+        "site": SITE_BASE_URL,
+        "articles": [
+            {"title": a["title"], "url": article_url(a),
+             "published": a.get("published", ""), "keyword": a.get("keyword", "")}
+            for a in articles
+        ],
+    }, indent=1, ensure_ascii=False))
 
     # ASCII only: Windows consoles default to cp1252 and crash on unicode.
     print(f"[SEO Engine] Site built: {len(articles)} article(s) -> docs/")

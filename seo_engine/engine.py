@@ -42,10 +42,37 @@ def run_cycle(notify: bool = True) -> dict:
         except Exception as e:
             print(f"[SEO Engine] Could not save companion post: {e}")
 
+    _ping_indexnow([url, f"{publisher.SITE_BASE_URL}/"])
+
     if notify:
         _notify(article, url, linkedin_post)
 
     return article
+
+
+def _ping_indexnow(urls: list) -> None:
+    """Tell Bing (which feeds ChatGPT search and Copilot) about new/updated
+    pages the moment they publish. Best-effort; never fails the run. Bing
+    fetches on its own schedule, so pinging just before the Pages deploy
+    finishes is fine."""
+    try:
+        import requests
+        from urllib.parse import urlparse
+        from config import INDEXNOW_KEY, SITE_BASE_URL
+
+        if not INDEXNOW_KEY:
+            return
+        host = urlparse(SITE_BASE_URL).netloc
+        r = requests.post(
+            "https://api.indexnow.org/indexnow",
+            json={"host": host, "key": INDEXNOW_KEY,
+                  "keyLocation": f"{SITE_BASE_URL}/{INDEXNOW_KEY}.txt",
+                  "urlList": urls},
+            timeout=15,
+        )
+        print(f"[SEO Engine] IndexNow ping sent ({r.status_code}) for {len(urls)} URL(s)")
+    except Exception as e:
+        print(f"[SEO Engine] IndexNow ping skipped: {e}")
 
 
 def _notify(article: dict, url: str, linkedin_post: str) -> None:

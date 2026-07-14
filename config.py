@@ -53,6 +53,11 @@ AUTHOR_BIO = os.getenv(
 AUTHOR_LINKEDIN_URL = os.getenv("AUTHOR_LINKEDIN_URL", "https://www.linkedin.com/in/greggrand/")
 AUTHOR_WEBSITE_URL = os.getenv("AUTHOR_WEBSITE_URL", "https://theaisalesleader.com")
 
+# IndexNow: instant "new page" pings to Bing (whose index powers ChatGPT
+# search and Copilot). The key is meant to be public; it is verified by the
+# matching <key>.txt file the publisher hosts on the site.
+INDEXNOW_KEY = os.getenv("INDEXNOW_KEY", "ca3b9ae3550689bfce7fc62132cf0feb")
+
 # ── Voice / Persona ──────────────────────────────────────────────────────────
 LINKEDIN_PERSONA = os.getenv(
     "LINKEDIN_PERSONA",

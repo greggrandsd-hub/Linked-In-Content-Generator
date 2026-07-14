@@ -120,14 +120,32 @@ Requirements: 5-7 sections, 4 faqs, valid HTML in body_html only (no <h1>/<h2>
 inside body_html — headings come from the "heading" field)."""
 
     print(f'[SEO Engine] Generating article for keyword: "{keyword}"...')
-    response = _call_with_retry(
-        lambda: client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=[prompt],
-        )
-    )
 
-    article = _strip_banned_dashes(_parse_json_response(response.text))
+    # Length gate: Gemini sometimes undershoots the 1,200-word floor (article 2
+    # came in at ~800). One retry with an explicit expansion demand.
+    article = None
+    for attempt in (1, 2):
+        response = _call_with_retry(
+            lambda: client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[prompt],
+            )
+        )
+        article = _strip_banned_dashes(_parse_json_response(response.text))
+        word_count = sum(
+            len(re.sub(r"<[^>]+>", " ", s.get("body_html", "")).split())
+            for s in article.get("sections", [])
+        )
+        if word_count >= 1000:
+            break
+        if attempt == 1:
+            print(f"[SEO Engine] Draft too short ({word_count} words), regenerating deeper...")
+            prompt += (
+                "\n\nIMPORTANT: your previous draft was too short. The article "
+                "body MUST total at least 1,300 words across the sections. Go "
+                "deeper on every section: add a concrete example, a step list, "
+                "or a number from your experience to each one."
+            )
 
     # Fill in the metadata the publisher needs
     article["keyword"] = keyword
@@ -136,9 +154,5 @@ inside body_html — headings come from the "heading" field)."""
         if not article.get(field):
             raise ValueError(f"Gemini response missing required field: {field}")
 
-    word_count = sum(
-        len(re.sub(r"<[^>]+>", " ", s.get("body_html", "")).split())
-        for s in article["sections"]
-    )
     print(f"[SEO Engine] Article generated: \"{article['title']}\" (~{word_count} words)")
     return article

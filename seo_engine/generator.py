@@ -24,14 +24,33 @@ def _slugify(text: str) -> str:
     return slug[:80].rstrip("-")
 
 
-def _parse_json_response(text: str) -> dict:
-    """Parse Gemini's JSON output, tolerating markdown code fences."""
+def _parse_json_response(text: str):
+    """Parse the first JSON value in a model response, tolerating markdown
+    fences and any prose before or after the JSON (Gemini sometimes appends
+    trailing commentary, which json.loads rejects as "Extra data")."""
     text = text.strip()
     if text.startswith("```"):
         # strip ```json ... ``` fences
         text = re.sub(r"^```[a-zA-Z]*\n?", "", text)
-        text = re.sub(r"\n?```$", "", text)
-    return json.loads(text.strip())
+        text = re.sub(r"\n?```\s*$", "", text)
+    starts = [i for i in (text.find("{"), text.find("[")) if i != -1]
+    if not starts:
+        raise ValueError("No JSON found in model response")
+    value, _ = json.JSONDecoder().raw_decode(text[min(starts):])
+    return value
+
+
+# Voice rule: em/en dashes are banned in everything Greg ships. The prompt
+# forbids them, and this guarantees it even when the model slips.
+def _strip_banned_dashes(value):
+    if isinstance(value, str):
+        value = value.replace(" — ", ": ").replace("—", ": ")
+        return value.replace("–", "-")
+    if isinstance(value, list):
+        return [_strip_banned_dashes(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _strip_banned_dashes(v) for k, v in value.items()}
+    return value
 
 
 def generate_article(topic: dict) -> dict:
@@ -47,10 +66,16 @@ def generate_article(topic: dict) -> dict:
 
 You are {AUTHOR_NAME} — sales leadership strategist and Vistage speaker —
 writing a long-form article for your website. Your LinkedIn voice (see examples
-below) carries over: direct, opinionated, staccato lines, em dashes, analogies,
+below) carries over: direct, opinionated, staccato lines, analogies,
 no corporate fluff, no AI words (delve, leverage, landscape, unlock, harness,
 elevate, foster, navigate, robust). But this is an ARTICLE, so paragraphs can
 be 2-4 sentences and total length must be 1,200-1,800 words.
+
+NON-NEGOTIABLE STYLE RULES:
+- NEVER use an em dash or en dash anywhere. Use a colon or two sentences.
+- NEVER use the word "playbook". Say "system", "framework", or "guide".
+- NEVER use the pattern "It's not about X. It's about Y." or "Not X. Y."
+- Never mention company sizes or team sizes.
 
 {EXAMPLE_POSTS}
 
@@ -102,7 +127,7 @@ inside body_html — headings come from the "heading" field)."""
         )
     )
 
-    article = _parse_json_response(response.text)
+    article = _strip_banned_dashes(_parse_json_response(response.text))
 
     # Fill in the metadata the publisher needs
     article["keyword"] = keyword

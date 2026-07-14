@@ -184,6 +184,40 @@ def freestyle():
     )
 
 
+# ── SEO / AEO / GEO Engine ────────────────────────────────────────
+
+@app.route("/seo")
+def seo():
+    """SEO Engine dashboard — published articles and topic queue status."""
+    from config import SITE_BASE_URL
+    from seo_engine import engine as seo_engine_mod
+
+    return render_template(
+        "seo.html",
+        active_page="seo",
+        status=seo_engine_mod.status(),
+        site_base_url=SITE_BASE_URL,
+    )
+
+
+@app.route("/seo/run")
+def seo_run_now():
+    """Generate + publish the next article. Synchronous — blocks until done."""
+    from seo_engine import engine as seo_engine_mod
+
+    try:
+        article = seo_engine_mod.run_cycle(notify=False)
+        flash(
+            f"Published: \"{article['title']}\" — companion LinkedIn post "
+            "added to your Saved queue.",
+            "success",
+        )
+    except Exception as e:
+        flash(f"SEO engine run failed: {e}", "error")
+
+    return redirect(url_for("seo"))
+
+
 # ── Saved Posts ───────────────────────────────────────────────────
 
 @app.route("/saved")

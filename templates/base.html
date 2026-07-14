@@ -24,6 +24,7 @@
                         Saved{% if saved_count %}<span class="nav-badge">{{ saved_count }}</span>{% endif %}
                     </a>
                 </li>
+                <li><a href="{{ url_for('seo') }}" class="{% if active_page == 'seo' %}active{% endif %}">SEO Engine</a></li>
             </ul>
         </div>
     </nav>

@@ -1,0 +1,65 @@
+# G Squared SEO/AEO/GEO Engine — fully automated daily publishing.
+#
+# Every day at 7:00 AM ET this workflow:
+#   1. Generates the next keyword-targeted article (Gemini, in Greg's voice)
+#   2. Rebuilds the static site under docs/
+#   3. Commits the new article + site back to the repo
+#   4. Emails Greg the link and a companion LinkedIn post (if Gmail secrets set)
+#
+# One-time setup (see SEO_ENGINE.md):
+#   - Repo Settings → Secrets and variables → Actions → add GEMINI_API_KEY
+#     (optional: GMAIL_ADDRESS, GMAIL_APP_PASSWORD, EMAIL_RECIPIENT)
+#   - Repo Settings → Pages → Deploy from a branch → main → /docs
+#
+# You can also trigger a run manually: Actions tab → SEO Engine → Run workflow.
+
+name: SEO Engine
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 11:00 UTC = 7:00 AM ET (6:00 AM during DST)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-engine
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate and publish next article
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+          SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
+        run: python seo_run.py
+
+      - name: Commit and push new content
+        run: |
+          git config user.name "seo-engine-bot"
+          git config user.email "actions@github.com"
+          git add -A content/ docs/
+          if [ -f .saved_posts.json ]; then git add .saved_posts.json; fi
+          if git diff --cached --quiet; then
+            echo "Nothing new to commit."
+          else
+            git commit -m "SEO engine: publish daily article ($(date -u +%Y-%m-%d))"
+            git push
+          fi

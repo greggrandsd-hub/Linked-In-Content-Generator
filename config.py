@@ -25,6 +25,26 @@ LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID", "")
 LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET", "")
 LINKEDIN_ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN", "")
 
+# ── SEO / AEO / GEO Engine ───────────────────────────────────────────────────
+# Where the generated site will live. Default: this repo's GitHub Pages URL.
+SITE_BASE_URL = (
+    os.getenv("SITE_BASE_URL")
+    or "https://greggrandsd-hub.github.io/Linked-In-Content-Generator"
+).rstrip("/")
+SITE_NAME = os.getenv("SITE_NAME", "G Squared Truths")
+SITE_TAGLINE = os.getenv(
+    "SITE_TAGLINE",
+    "No-nonsense sales leadership answers for CEOs, founders, and revenue leaders.",
+)
+AUTHOR_NAME = os.getenv("AUTHOR_NAME", "Greg Grand")
+AUTHOR_BIO = os.getenv(
+    "AUTHOR_BIO",
+    "Greg Grand is a sales leadership strategist and Vistage speaker who helps "
+    "CEOs, founders, and revenue leaders build sales teams that scale on "
+    "process, not heroics — the G Squared Truths framework.",
+)
+AUTHOR_LINKEDIN_URL = os.getenv("AUTHOR_LINKEDIN_URL", "https://www.linkedin.com/in/greggrand/")
+
 # ── Voice / Persona ──────────────────────────────────────────────────────────
 LINKEDIN_PERSONA = os.getenv(
     "LINKEDIN_PERSONA",

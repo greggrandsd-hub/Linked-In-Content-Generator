@@ -17,6 +17,11 @@ This tool replicates an automated Make.com workflow in a standalone Python app:
 
 You simply drop a file (article, PDF, notes, etc.) into your Dropbox folder, and the tool does the rest.
 
+**New:** the repo also includes a fully automated **SEO / AEO / GEO engine** that
+publishes a keyword-targeted article to your own site every day — optimized for
+Google, featured snippets, and AI engines (ChatGPT, Perplexity) — and feeds a
+companion post back into the LinkedIn queue. See [SEO_ENGINE.md](SEO_ENGINE.md).
+
 ---
 
 ## Quick Start

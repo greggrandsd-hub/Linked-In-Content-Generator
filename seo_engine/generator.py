@@ -262,6 +262,12 @@ VOICE DNA (hard rules, one violation fails the article):
    where it's genuinely Greg's view.
 8. Never mention company sizes or team sizes.
 9. Section headings in sentence case, phrased as questions a real buyer asks.
+10. Program facts, when a topic touches Greg's own offerings: the programs are
+   CASL (Certified AI Sales Leader), CASH (Certified AI Sales Hunter), REAP,
+   CASC, CASX, the Sales Leadership Forum, and Workshops. The Forum is a
+   founding cohort now forming: NEVER claim existing members, member counts,
+   or testimonials for anything. NEVER describe module-by-module curriculum
+   details. NEVER state prices. Point readers to theaisalesleader.com.
 
 {EXAMPLE_POSTS}
 

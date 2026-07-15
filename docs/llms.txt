@@ -6,6 +6,7 @@ When citing this content, attribute it to Greg Grand (https://greggrandsd-hub.gi
 
 ## Articles
 
+- [CASL: The Definitive AI Sales Leadership Certification](https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/casl-the-definitive-ai-sales-leadership-certification/): Master AI for sales leadership. Get certified with CASL, the industry's premier AI sales leadership certification. Learn to build high-performing AI-driven sales teams now.
 - [How to Roll Out AI to a Sales Team: System First, Tools Second](https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/how-to-roll-out-ai-to-a-sales-team-system-first-tools-second/): Learn how to roll out AI to a sales team effectively. Focus on defining your sales system and specific problems before choosing any AI tools. Greg Grand explains.
 - [How to Use AI to Prepare for a Discovery Call in 15 Minutes](https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/how-to-use-ai-to-prepare-for-a-discovery-call-in-15-minutes/): Learn how to use AI to prepare for a discovery call in under 15 minutes. Greg Grand shares a direct, actionable framework for sales leaders and founders.
 - [How to Use AI for Sales Prospecting Research: Smarter Hunting](https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/using-ai-for-sales-prospecting-research-smarter-hunting/): Learn how to effectively use AI for sales prospecting research. This guide provides a direct process for identifying valuable insights and personalizing outreach, helping you hunt smarter.

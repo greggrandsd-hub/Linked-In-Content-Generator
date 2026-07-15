@@ -1,9 +1,15 @@
 {
- "last_build_utc": "2026-07-14T21:46:39Z",
- "article_count": 3,
- "topics_remaining": 45,
+ "last_build_utc": "2026-07-15T19:29:30Z",
+ "article_count": 4,
+ "topics_remaining": 52,
  "site": "https://greggrandsd-hub.github.io/Linked-In-Content-Generator",
  "articles": [
+  {
+   "title": "CASL: The Definitive AI Sales Leadership Certification",
+   "url": "https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/casl-the-definitive-ai-sales-leadership-certification/",
+   "published": "2026-07-15",
+   "keyword": "AI sales leadership certification"
+  },
   {
    "title": "How to Roll Out AI to a Sales Team: System First, Tools Second",
    "url": "https://greggrandsd-hub.github.io/Linked-In-Content-Generator/articles/how-to-roll-out-ai-to-a-sales-team-system-first-tools-second/",

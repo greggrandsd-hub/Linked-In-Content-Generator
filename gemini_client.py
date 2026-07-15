@@ -67,6 +67,64 @@ def _detect_banned_patterns(text: str) -> list[str]:
             hits.append((match.group(0), label))
     return hits
 
+# ── Deterministic voice gate (shared with the SEO engine) ─────────────────────
+# Wired 2026-07-14: every post option now runs through the SEO engine's
+# voice_gate() (seo_engine/generator.py) BEFORE it can be emailed to Greg.
+# That gate is built from the Voice Bible (anti-ai-writing-style.md): banned
+# AI vocabulary, negative-parallelism regexes, invented-statistic detection,
+# em/en dash check. Posts that fail get regenerated with the exact violations
+# quoted back; a post that keeps failing kills the run (RUN: FAIL in the log,
+# no email) rather than shipping something off-voice under Greg's name.
+#
+# The import is LAZY (inside the function): seo_engine/generator.py imports
+# this module at its top (EXAMPLE_POSTS, _call_with_retry), so a top-level
+# import here would be circular.
+
+# Greg's own locked signature stats (VOICE_BIBLE above) are not invented
+# numbers. Neutralize them before the scan so they never trip the
+# invented-statistic detector; everything else with a %, "Nx", or claimed
+# outcome still fails the gate.
+_SIGNATURE_STAT_ALLOWLIST = [
+    r"\b65%[^.!?\n]{0,60}?\b(?:sell\w*|admin\w*)",  # "Reps spend 65% of time NOT selling"
+    r"\b3x more productive\b",                      # "A great rep with AI is 3x more productive"
+    r"\b10x faster\b",                              # "AI can research ... 10x faster"
+]
+
+# Staccato-format gaps found in the 2026-07-14 live test. The shared gate's
+# regexes expect prose ("X. It's Y." with a space), but posts put every
+# sentence on its own line, and the punchiest reframes have ZERO words
+# between the halves ("Stop guessing. Start knowing."), which the shared
+# patterns' {2,60}/[^.]+ quantifiers require. Whitespace gets collapsed
+# before scanning (fixes the newline gap); these patterns fix the rest.
+_POST_EXTRA_PATTERNS = [
+    (r"\bStop [a-z]+ing\b[^.!?]{0,60}[.!?]\s+Start\b", "Stop X. Start Y."),
+    (r"\b(?:This|That|It) (?:isn|wasn)'?t\b[^.!?]{1,60}[.!?]\s+(?:It|This|That)'?s?\b",
+     "This isn't X. It's Y."),
+]
+
+
+def _post_voice_gate(post_text: str) -> list[str]:
+    """Return the list of Voice DNA violations for a post (empty = clean)."""
+    from seo_engine.generator import voice_gate  # lazy: avoids circular import
+    # Collapse all whitespace: Staccato posts separate sentences with
+    # newlines, which the sentence-pair regexes (built for article prose)
+    # would otherwise never match across.
+    scannable = re.sub(r"\s+", " ", post_text)
+    for pat in _SIGNATURE_STAT_ALLOWLIST:
+        scannable = re.sub(pat, "far more productive", scannable,
+                           flags=re.IGNORECASE)
+    problems = voice_gate({"linkedin_post": scannable})
+    # Post-specific negative-parallelism shapes the article gate doesn't
+    # cover ("Less X, more Y", "Not only X but also Y", ...). Same FATAL status.
+    for matched, label in _detect_banned_patterns(scannable):
+        problems.append(f'negative-parallelism ("{label}") in: "{matched}"')
+    for pat, label in _POST_EXTRA_PATTERNS:
+        m = re.search(pat, scannable, re.IGNORECASE)
+        if m:
+            problems.append(
+                f'negative-parallelism ("{label}") in: "{m.group(0)}"')
+    return problems
+
 # Supported MIME types for Gemini file upload
 _GEMINI_SUPPORTED_EXTENSIONS = {
     ".pdf", ".txt", ".csv", ".html", ".xml", ".json",
@@ -618,21 +676,58 @@ def generate_linkedin_post(
         contents = [uploaded_file, prompt]
 
     print(f'[Gemini] Generating post for theme: "{theme_name}"...')
-    response = _call_with_retry(
-        lambda: client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=contents,
-        )
-    )
 
-    post_text = _enforce_banned_words(response.text.strip())
-    print(f"[Gemini] Post generated ({len(post_text)} chars)")
-    violations = _detect_banned_patterns(post_text)
-    if violations:
-        print(f"[Voice DNA] {len(violations)} banned-pattern violation(s) detected in '{theme_name}':")
-        for matched, label in violations:
-            print(f"  - {label}: {matched!r}")
-        print(f"[Voice DNA] Greg should rewrite the flagged sentences before posting.")
+    # Quality loop (mirrors seo_engine.generator.generate_article): fresh
+    # draft, then surgical repair passes quoting the exact violations, then
+    # the SEO engine's deterministic autofix as a last resort. A post that
+    # still fails raises, which fails the whole run loud (RUN: FAIL in the
+    # log, no email) instead of putting an off-voice draft in Greg's inbox.
+    current_contents = contents
+    post_text = ""
+    problems: list[str] = []
+    for attempt in (1, 2, 3):
+        response = _call_with_retry(
+            lambda: client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=current_contents,
+            )
+        )
+        post_text = _enforce_banned_words(response.text.strip())
+        problems = _post_voice_gate(post_text)
+        if not problems:
+            break
+        print(f"[Voice Gate] Attempt {attempt} for '{theme_name}' failed "
+              f"({len(problems)} issue(s)): {'; '.join(p[:90] for p in problems[:4])}")
+        if attempt == 3:
+            break
+        repair = (
+            "\n\nHERE IS YOUR DRAFT, WHICH FAILED REVIEW:\n" + post_text
+            + "\n\nFix ONLY these specific violations by rewriting the "
+              "offending sentences. Keep the same theme, opening style, and "
+              "everything else exactly as written. Return ONLY the corrected "
+              "post text, nothing else:\n- "
+            + "\n- ".join(p[:200] for p in problems[:10])
+        )
+        if isinstance(uploaded_file, str):
+            current_contents = [contents[0] + repair]
+        else:
+            current_contents = [uploaded_file, contents[1] + repair]
+
+    if problems:
+        from seo_engine.generator import (_apply_synonym_fix,
+                                          _fix_neg_parallelism,
+                                          _strip_banned_dashes)
+        post_text = _apply_synonym_fix(
+            _fix_neg_parallelism(_strip_banned_dashes(post_text)))
+        problems = _post_voice_gate(post_text)
+    if problems:
+        raise ValueError(
+            f"Post option '{theme_name}' failed the voice gate after 3 "
+            "attempts + autofix. Nothing off-voice ships under Greg's name. "
+            "Violations: " + "; ".join(p[:120] for p in problems[:6])
+        )
+
+    print(f"[Gemini] Post generated ({len(post_text)} chars). Voice gate: PASS")
     return (theme_name, post_text)
 
 

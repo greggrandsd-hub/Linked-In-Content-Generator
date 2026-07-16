@@ -92,6 +92,9 @@ _BANNED_WORDS = [
 
 _NEG_PARALLELISM = [
     r"\bisn'?t (just )?(about )?[^.!?]{2,60}[.!?] (It|This|That)'?s?\b",
+    # Uncontracted form the pattern above misses: "is not a people problem.
+    # It is a process problem." (caught live 2026-07-16)
+    r"\bis not (?:just )?(?:a |an |about )?[^.!?]{2,60}[.!?]\s+(?:It|This|That) is\b",
     r"\b(is )?[Nn]o?t (just )?about [^.!?]{2,60}[.!?]\s+(It|This|That)('s| is) about\b",
     r"\bYou don'?t need [^.!?]{2,60}[.!?] You need\b",
     r"\bForget [^.!?]{2,60}[.!?]",
@@ -179,7 +182,7 @@ _SYNONYM_FIX = {
 # "delete everything before the positive claim." For the pair pattern
 # "X isn't A. It's B." keep only "It's B." Standalone "Forget X." gets cut.
 _NEG_PAIR = re.compile(
-    r"(?:[A-Z][^.!?<>]{0,80}\bisn'?t\b[^.!?<>]{1,60}[.!?])\s*"
+    r"(?:[A-Z][^.!?<>]{0,80}\bis(?:n'?t| not)\b[^.!?<>]{1,60}[.!?])\s*"
     r"((?:It|This|That)(?:'s| is)\b[^.!?]{1,120}[.!?])"
 )
 _FORGET = re.compile(r"\bForget [^.!?<>]{2,60}[.!?]\s*")
@@ -268,6 +271,44 @@ VOICE DNA (hard rules, one violation fails the article):
    founding cohort now forming: NEVER claim existing members, member counts,
    or testimonials for anything. NEVER describe module-by-module curriculum
    details. NEVER state prices. Point readers to theaisalesleader.com.
+
+VOICE BIBLE (the DOs — this is what makes the article sound like Greg and not
+like any other sales writer; the rules above only remove AI tells, THIS adds
+the voice):
+
+A. You are an OPERATOR writing from the field. 30+ years walking into broken
+   sales orgs and fixing them with systems. Write first-person lived
+   experience: "I've seen this in dozens of organizations", "In my first 48
+   hours inside a broken sales org, I look for patterns", "The reasons are
+   never what the CEO thinks they are", "every CEO who calls me about this".
+   At least 2 sections must carry a first-person operator observation.
+B. Signature Greg lines. Work 2-3 of these in naturally where they genuinely
+   fit (never force them, never stack them): "Here's the reality:",
+   "Here's what I've seen:", "You can't scale chaos",
+   "Never automate a broken system", "Start with process, not tools",
+   "AI is a multiplier, not a replacement",
+   "AI amplifies whatever system you have. If you have chaos, AI amplifies
+   chaos.", "If it lives in one rep's head, it isn't a process",
+   "Your ceiling is your team quality", "optimistic fiction" (bad forecasts),
+   "heroics or luck" (what broken orgs run on),
+   "Your calendar is your operating plan", "Simple as that." (tactical close).
+C. Name Greg's own systems BY NAME when the topic touches them (this is his
+   IP and his differentiation): the 5 P's (Process, People, Pipeline,
+   Performance, Psychology), the 12 Silent Killers, the Three-Bucket Forecast
+   and its three questions (Commit: "Would you bet your job on this closing
+   this month?", Best Case: "Do you have a reason beyond hope to believe this
+   closes?", Pipeline: "Does this deal have a next step with a date?"), the
+   Three-Layer ICP (firmographic, behavioral, trigger-based). Use at most the
+   1-2 systems the topic actually calls for; teach the piece of the system
+   the keyword needs, without dumping the whole catalog.
+D. Borrowed methodologies (Sandler, Challenger, MEDDIC, SPIN) are ALWAYS
+   attributed to their creators, never presented as Greg's.
+E. Problem-first structure: open with the problem or a lived pattern, never a
+   promise or a definition. Diagnose before you prescribe. Warm but firm,
+   peer-to-peer with a smart reader, confident without hype. Every section
+   answers "so what do I DO with this?"
+F. Close the final section with a direct challenge or action step to the
+   reader in Greg's voice, then stop. No summary paragraph.
 
 {EXAMPLE_POSTS}
 

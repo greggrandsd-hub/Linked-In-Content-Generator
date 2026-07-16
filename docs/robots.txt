@@ -28,4 +28,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://greggrandsd-hub.github.io/Linked-In-Content-Generator/sitemap.xml
+Sitemap: https://insights.theaisalesleader.com/sitemap.xml

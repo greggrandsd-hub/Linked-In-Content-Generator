@@ -126,6 +126,17 @@ def main():
     problems = _post_voice_gate(EXAMPLE_DOG + "\n\nStop guessing. Start knowing.")
     check("Stop X. Start Y. fails", len(problems) > 0)
 
+    # ── 14b: comma-joined negative parallelism (live gate gap 2026-07-23) ─
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nThis isn't a rep problem, it's a leadership failure to establish a system.")
+    check("comma-form negative parallelism fails (shipped option 2 sentence)",
+          has(problems, "comma form"))
+
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nThat is not a process, it is a wish.")
+    check("uncontracted comma-form negative parallelism fails",
+          has(problems, "comma form"))
+
     # ── 15: signature stat allowlist survives ─────────────────────────────
     problems = _post_voice_gate(
         EXAMPLE_DOG + "\n\nA great rep with AI is 3x more productive.")

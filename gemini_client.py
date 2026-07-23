@@ -100,6 +100,11 @@ _POST_EXTRA_PATTERNS = [
     (r"\bStop [a-z]+ing\b[^.!?]{0,60}[.!?]\s+Start\b", "Stop X. Start Y."),
     (r"\b(?:This|That|It) (?:isn|wasn)'?t\b[^.!?]{1,60}[.!?]\s+(?:It|This|That)'?s?\b",
      "This isn't X. It's Y."),
+    # Comma-joined variant (gate gap caught 2026-07-23: "This isn't a rep
+    # problem, it's a leadership failure" sailed through the period-only
+    # regexes above and shipped in a live option).
+    (r"\b(?:this|that|it)\s(?:isn['’]?t|is\snot|wasn['’]?t|was\snot)\b[^.!?]{1,60},\s*(?:it|this|that)(?:['’]?s|\sis)\b",
+     "This isn't X, it's Y. (comma form)"),
 ]
 
 # Rewired 2026-07-23 per Greg's ruling: New Voice Bible July 2026 (master) +
@@ -828,7 +833,8 @@ def generate_five_options(uploaded_file: types.File | str) -> list[tuple[str, st
 def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
     """
     Generate a LinkedIn post about a custom topic (not from the 20 themes).
-    Still uses Greg's Staccato voice and style rules.
+    Uses the same New Voice Bible rules and deterministic voice gate as the
+    scheduled run (gated since 2026-07-23; it previously only warned).
     Returns (topic_label, post_text).
     """
     client = get_gemini_client()
@@ -885,13 +891,21 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
     )
 
     post_text = _enforce_banned_words(response.text.strip())
-    print(f"[Gemini] Post generated ({len(post_text)} chars)")
-    violations = _detect_banned_patterns(post_text)
-    if violations:
-        print(f"[Voice DNA] {len(violations)} banned-pattern violation(s) detected in freestyle '{user_topic}':")
-        for matched, label in violations:
-            print(f"  - {label}: {matched!r}")
-        print(f"[Voice DNA] Greg should rewrite the flagged sentences before posting.")
+    problems = _post_voice_gate(post_text)
+    if problems:
+        from seo_engine.generator import (_apply_synonym_fix,
+                                          _fix_neg_parallelism,
+                                          _strip_banned_dashes)
+        post_text = _apply_synonym_fix(
+            _fix_neg_parallelism(_strip_banned_dashes(post_text)))
+        problems = _post_voice_gate(post_text)
+    if problems:
+        raise ValueError(
+            f"Freestyle post '{user_topic}' failed the voice gate. Nothing "
+            "off-voice ships under Greg's name. Rerun or adjust the topic. "
+            "Violations: " + "; ".join(p[:120] for p in problems[:6])
+        )
+    print(f"[Gemini] Post generated ({len(post_text)} chars). Voice gate: PASS")
     return (user_topic, post_text)
 
 

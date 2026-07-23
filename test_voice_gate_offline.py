@@ -165,6 +165,72 @@ def main():
     check("LINKEDIN_PERSONA carries the New Voice Bible",
           "New Voice Bible" in config.LINKEDIN_PERSONA)
 
+    # ── Round-2 anti-pastiche checks (Greg: "the last gmail is still shit") ─
+    OPTION1_SHIPPED = """A CEO in San Diego invested $50,000 in a new AI sales prospecting tool. His team went all-in, generating a flood of new leads and activities. Six months later, revenue hadn't moved an inch.
+
+He couldn't grasp why the investment flopped. You simply can't scale chaos.
+
+AI amplifies whatever system you have. If that system is broken, AI amplifies brokenness. His reps were just doing more of the wrong things, faster.
+
+Before pouring AI on a problem, leaders must inspect their sales operating system. This means defining each of the 5 Pillars: Process, People, Pipeline, Performance, and Psychology. Start with process, not tools.
+
+Without clear stages and exit criteria, or a disciplined coaching rhythm, any AI tool becomes just another shiny object speeding up an inefficient process.
+
+Where are you starting the hard work of diagnosing your operating system before adding more AI?"""
+    problems = _post_voice_gate(OPTION1_SHIPPED)
+    check("shipped option 1 (the 'still shit' post) now fails on stuffing",
+          has(problems, "signature-phrase stuffing"))
+    check("shipped option 1 fails on missing first person",
+          has(problems, "first-person"))
+    check("shipped option 1 fails on case-study opener",
+          has(problems, "case-study opener"))
+
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nYou can't scale chaos. Inspect what you expect.")
+    check("two signature phrases fails", has(problems, "stuffing"))
+
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nAI amplifies whatever system you have. If you have chaos, AI amplifies chaos.")
+    check("ONE full amplifier phrase does NOT count as stuffing",
+          not has(problems, "stuffing"), "; ".join(problems[:3]))
+
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nLeaders react to that 65% by chasing more tools.")
+    check("bare reference back to the 65% signature stat is allowlisted",
+          not has(problems, "invented statistic"), "; ".join(problems[:3]))
+
+    problems = _post_voice_gate(
+        "A VP of Sales rolled out a new tool last quarter.\n\n" + EXAMPLE_DOG)
+    check("third-person character opener fails", has(problems, "case-study opener"))
+
+    # ── Drop-not-kill resilience (offline, stubbed generator) ─────────────
+    import gemini_client as gc
+    real_gen = gc.generate_linkedin_post
+    calls = {"n": 0}
+
+    def one_bad(uploaded_file, theme=None):
+        calls["n"] += 1
+        if calls["n"] == 2:
+            raise ValueError("stub: option failed gate")
+        return (theme[0] if theme else "t", "stub post text")
+
+    try:
+        gc.time.sleep = lambda s: None
+        gc.generate_linkedin_post = one_bad
+        got = gc.generate_n_options("ref", 5)
+        check("one failed option is dropped, survivors ship", len(got) == 4,
+              f"got {len(got)}")
+
+        gc.generate_linkedin_post = lambda u, theme=None: (_ for _ in ()).throw(
+            ValueError("stub: all fail"))
+        try:
+            gc.generate_n_options("ref", 3)
+            check("all options failing raises", False, "no exception raised")
+        except ValueError:
+            check("all options failing raises", True)
+    finally:
+        gc.generate_linkedin_post = real_gen
+
     passed = sum(1 for _, ok, _ in RESULTS if ok)
     total = len(RESULTS)
     print(f"\n{passed}/{total} tests passed")

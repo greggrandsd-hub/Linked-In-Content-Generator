@@ -85,7 +85,11 @@ def _detect_banned_patterns(text: str) -> list[str]:
 # invented-statistic detector; everything else with a %, "Nx", or claimed
 # outcome still fails the gate.
 _SIGNATURE_STAT_ALLOWLIST = [
-    r"\b65%[^.!?\n]{0,60}?\b(?:sell\w*|admin\w*)",  # "Reps spend 65% of time NOT selling"
+    # 65% is Greg's locked signature number. Neutralize EVERY mention, not just
+    # the canonical "65% ... selling" shape: posts that use the stat then refer
+    # back to it ("Leaders react to that 65%...") were tripping the
+    # invented-statistic detector and killing runs (fixed 2026-07-23 evening).
+    r"\b65%",
     r"\b3x more productive\b",                      # "A great rep with AI is 3x more productive"
     r"\b10x faster\b",                              # "AI can research ... 10x faster"
 ]
@@ -120,6 +124,37 @@ _EMOJI_RE = re.compile(
     "️"                  # variation selector that emojifies characters
     "]"
 )
+
+
+# Round 2 (2026-07-23 evening, Greg: "the last gmail is still shit"): the
+# deterministic tells were gone but the posts still read AI because they were
+# PASTICHE: third-person case studies, zero first person, signature phrases
+# stacked like a highlight reel. These markers let the gate count phrase
+# stuffing; substrings are lowercase and intentionally loose.
+# Each tuple is ONE phrase family (variants and halves of the same signature
+# phrase). Stuffing = two or more DIFFERENT families in one post. Round-2a fix:
+# the amplifier phrase's two halves ("amplifies whatever system you have" +
+# "amplifies chaos") were counted as two phrases, which made the one allowed
+# phrase unsatisfiable and killed the 14:37 run.
+_SIGNATURE_PHRASE_MARKERS = [
+    ("can't scale chaos", "cannot scale chaos"),
+    ("inspect what you expect",),
+    ("amplifies chaos", "amplifies whatever system", "amplifies brokenness"),
+    ("never automate a broken",),
+    ("optimistic fiction",),
+    ("heroics or luck",),
+    ("a system, not a style",),
+    ("3x more productive",),
+    ("65% of",),
+    ("start with process, not tools",),
+    ("zero reps times",),
+    ("wrong diagnosis. wrong problem",),
+    ("one rep's head",),
+    ("ceiling is your team quality",),
+    ("natural talent runs out",),
+    ("multiplier, not a replacement",),
+    ("cost of not using ai",),
+]
 
 
 def _post_voice_gate(post_text: str) -> list[str]:
@@ -174,6 +209,28 @@ def _post_voice_gate(post_text: str) -> list[str]:
                 break
         else:
             run = 0
+
+    # ── Round-2 anti-pastiche checks (2026-07-23 evening) ─────────────────
+    lower = post_text.lower()
+    stuffed = [family[0] for family in _SIGNATURE_PHRASE_MARKERS
+               if any(variant in lower for variant in family)]
+    if len(stuffed) >= 2:
+        problems.append(
+            "signature-phrase stuffing (" + ", ".join(stuffed[:3])
+            + "): AT MOST ONE per post, it reads as a Greg-imitation")
+    first_person = (len(re.findall(r"\b(?:I|I'm|I've|I'd)\b", post_text))
+                    + len(re.findall(r"(?i)\b(?:my|me|mine|we|we're|our)\b",
+                                     post_text)))
+    if first_person < 2:
+        problems.append(
+            "no lived first-person perspective: Greg must be IN the post "
+            "(I, my, me, we at least twice)")
+    first_line = next((s.strip() for s in post_text.split("\n") if s.strip()), "")
+    if re.match(r"(?i)^(?:a|an|one)\s+(?:CEO|VP|founder|client|company|"
+                r"sales\s?leader|sales\s?manager|rep|salesperson)\b", first_line):
+        problems.append(
+            "third-person case-study opener: tell it as Greg lived it "
+            "('A CEO called me'), never as an invented case study")
     return problems
 
 # Supported MIME types for Gemini file upload
@@ -248,6 +305,9 @@ OPENING RULES (non-negotiable)
   (1) Number + claim: "Only 20% of sales reps thrive under a one-size-fits-all plan."
   (2) Time anchor + moment: "20 years ago, I was selling with a BlackBerry on my hip."
 - Stakes clear by line 1. No warm-up. No context-setting.
+- Default to a statement hook. A question hook only if it names a specific pain in under ten words.
+- NEVER open by introducing a third-person character ("A CEO...", "A VP..."). If a story
+  opens the post, Greg is in the first sentence: "A CEO called me", never "A CEO invested".
 - Never start with "I've been thinking..." or "As leaders..."
 - Hook under 15 words.
 
@@ -364,7 +424,7 @@ IDENTITY & POSITIONING
 - The only person who occupies the empty quadrant: AI-native + Leadership Development
 - BSEE background. Engineer's mindset applied to revenue systems.
 
-SIGNATURE PHRASES — Weave 1-2 naturally per post when the theme allows:
+SIGNATURE PHRASES — Use AT MOST ONE per post, only when it lands naturally. Zero is fine. Stacking these reads as a Greg-imitation, not Greg:
 • "You can't scale chaos"
 • "Inspect what you expect"
 • "If it lives in one rep's head, it isn't a process"
@@ -687,10 +747,11 @@ def generate_linkedin_post(
         f"You MUST open using this style. Do not default to a generic hook.\n\n"
         f"{theme_block}"
         "VOICE INTEGRATION REQUIREMENTS:\n"
-        "- Weave in 1-2 of Greg's signature phrases naturally (see VOICE BIBLE above) — do NOT force them all in\n"
-        "- Reference one of Greg's proprietary frameworks by name if it fits the theme\n"
-        "- Write from lived experience, not theory — 'I've seen this in dozens of organizations'\n"
-        "- Close with 'Your move.' or a forward-facing challenge question — NEVER a summary\n\n"
+        "- Use AT MOST ONE of Greg's signature phrases, only where it lands naturally. Two or more fails review. Zero is fine.\n"
+        "- Reference one of Greg's proprietary frameworks by name ONLY if it genuinely fits the theme. Framework name-dropping reads as marketing.\n"
+        "- FIRST PERSON, NON-NEGOTIABLE: Greg is IN the post. Use I, my, me, or we at least twice. Never write a third-person case study ('A CEO invested... his team...'). If you tell a story, it comes from the real STORY HOOKS above, told the way Greg lived it ('A CEO called me at 7:15 AM', 'I walked into'), and leave one imperfect or unresolved detail in. Real stories have friction.\n"
+        "- Let one genuine irritation or doubt show. Greg has watched teams make the same mistakes for 30 years and it bugs him. That energy reads human. Dry humor welcome.\n"
+        "- Close with ONE concrete question under 12 words that a CEO could answer in one line, or a flat final point. Never a summary.\n\n"
         "IMPORTANT CONTENT DIRECTION: Greg is deeply focused on the intersection of "
         "AI and sales leadership right now. Where it fits naturally with the theme, "
         "connect it to how AI is changing sales — prospecting, coaching, forecasting, "
@@ -746,10 +807,12 @@ def generate_linkedin_post(
             break
         repair = (
             "\n\nHERE IS YOUR DRAFT, WHICH FAILED REVIEW:\n" + post_text
-            + "\n\nFix ONLY these specific violations by rewriting the "
-              "offending sentences. Keep the same theme, opening style, and "
-              "everything else exactly as written. Return ONLY the corrected "
-              "post text, nothing else:\n- "
+            + "\n\nRewrite to clear these violations. Keep the same theme and "
+              "core argument. If a violation is about the OPENER, first-person "
+              "perspective, or overall structure, restructure as much as "
+              "needed to fix it (do not preserve the broken shape). Otherwise "
+              "change as little as possible. Return ONLY the corrected post "
+              "text, nothing else:\n- "
             + "\n- ".join(p[:200] for p in problems[:10])
         )
         if isinstance(uploaded_file, str):
@@ -800,12 +863,24 @@ def generate_n_options(
     options = []
     for i, theme in enumerate(themes, 1):
         print(f"\n--- Generating Option {i} of {count} ---")
-        result = generate_linkedin_post(uploaded_file, theme=theme)
-        options.append(result)
+        # Drop-not-kill (2026-07-23 evening): a single unfixable option used to
+        # raise and kill the WHOLE run (three RUN: FAIL entries that day), which
+        # would leave Greg with no email at all on a scheduled morning. Now a
+        # failed option is dropped loudly and the survivors ship. Zero
+        # survivors still fails the run.
+        try:
+            result = generate_linkedin_post(uploaded_file, theme=theme)
+            options.append(result)
+        except ValueError as e:
+            print(f"[Voice Gate] DROPPED option {i} ('{theme[0]}'): {e}")
         # Small delay between calls to avoid rate limits
         if i < count:
             time.sleep(2)
 
+    if not options:
+        raise ValueError(
+            f"All {count} post options failed the voice gate. Nothing to email."
+        )
     return options
 
 
@@ -857,10 +932,11 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
         f"revenue growth, and building teams. Make it a G Squared Truth even though "
         f"it's not one of the standard 20. Same voice, same fire, same format.\n\n"
         "VOICE INTEGRATION REQUIREMENTS:\n"
-        "- Weave in 1-2 of Greg's signature phrases naturally (see VOICE BIBLE above) — do NOT force them all in\n"
-        "- Reference one of Greg's proprietary frameworks by name if it fits the topic\n"
-        "- Write from lived experience, not theory — 'I've seen this in dozens of organizations'\n"
-        "- Close with 'Your move.' or a forward-facing challenge question — NEVER a summary\n\n"
+        "- Use AT MOST ONE of Greg's signature phrases, only where it lands naturally. Two or more fails review. Zero is fine.\n"
+        "- Reference one of Greg's proprietary frameworks by name ONLY if it genuinely fits the topic. Framework name-dropping reads as marketing.\n"
+        "- FIRST PERSON, NON-NEGOTIABLE: Greg is IN the post. Use I, my, me, or we at least twice. Never write a third-person case study ('A CEO invested... his team...'). If you tell a story, it comes from the real STORY HOOKS above, told the way Greg lived it ('A CEO called me at 7:15 AM', 'I walked into'), and leave one imperfect or unresolved detail in. Real stories have friction.\n"
+        "- Let one genuine irritation or doubt show. Greg has watched teams make the same mistakes for 30 years and it bugs him. That energy reads human. Dry humor welcome.\n"
+        "- Close with ONE concrete question under 12 words that a CEO could answer in one line, or a flat final point. Never a summary.\n\n"
         f"IMPORTANT CONTENT DIRECTION: Greg is deeply focused on the intersection of "
         f"AI and sales leadership right now. Where it fits naturally with the topic, "
         f"connect it to how AI is changing sales — prospecting, coaching, forecasting, "

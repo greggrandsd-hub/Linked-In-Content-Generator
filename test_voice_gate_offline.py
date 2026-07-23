@@ -73,10 +73,14 @@ def has(problems, needle):
 def main():
     # ── 1-3: the three real winner examples must be gate-clean ────────────
     for label, text in (("example vistage (real-moment winner)", EXAMPLE_VISTAGE),
-                        ("example dog (human artifact winner)", EXAMPLE_DOG),
-                        ("example cadence (leader-lens diagnostic)", EXAMPLE_CADENCE)):
+                        ("example dog (human artifact winner)", EXAMPLE_DOG)):
         problems = _post_voice_gate(text)
         check(f"{label} passes clean", problems == [], "; ".join(problems[:4]))
+
+    # The cadence post is a real past winner but is written in the banned
+    # broetry format, so it must NOT pass and is no longer a training example.
+    check("cadence post (broetry, disavowed format) correctly fails",
+          has(_post_voice_gate(EXAMPLE_CADENCE), "broetry"))
 
     # ── 4-9: each new deterministic check fires on the injected violation ──
     problems = _post_voice_gate(EXAMPLE_DOG.replace("meetings.", "meetings; every time."))
@@ -203,6 +207,51 @@ Where are you starting the hard work of diagnosing your operating system before 
     problems = _post_voice_gate(
         "A VP of Sales rolled out a new tool last quarter.\n\n" + EXAMPLE_DOG)
     check("third-person character opener fails", has(problems, "case-study opener"))
+
+    # ── Broetry paragraph structure (Greg 2026-07-23 night) ──────────────
+    GOLD_721 = """A week of Vistage AI Masterclass sessions in Seattle. First time running my new workshop format: teach it, show it live, then the business owners build it themselves with AI before they leave the room.
+
+More fun than I have had presenting in years. For a long time I sat up there as the talking head for three hours. This time the room did the work, and the aha moments kept coming.
+
+Here is what I saw: every room already has one leader quietly ahead on AI. Sometimes the rest of the room found that out the same day. There was a great variety in AI experience, but we all came together that day to learn, pressure-test, and come out with some amazing results.
+
+Thank you, Carla Corkern and Jess Hickey, for putting me in front of your groups. Sharp members, honest questions, zero spectators.
+
+The gap between companies putting AI to work in sales and companies waiting is getting expensive. The CEOs in those rooms are not waiting.
+
+If you chair a Vistage group and want this workshop in your room, let us talk."""
+    check("Greg's real gold 7/21 post PASSES the broetry check",
+          not has(_post_voice_gate(GOLD_721), "broetry"),
+          "; ".join(_post_voice_gate(GOLD_721)[:3]))
+
+    BROETRY = """For years I gave the same three-hour talk. Stand up, teach, watch the heads nod, sit down.
+
+Last week in Seattle I threw that format out.
+
+The new way: I teach one AI play, I show it live, then the business owners build it themselves before they leave the room. They do the work, I coach.
+
+I haven't had that much fun presenting in years. A CEO who builds it themselves remembers it. One who watched me run a demo forgets it by Friday.
+
+Every room already had one owner quietly ahead on AI. Half the time the rest of the group found out that same day.
+
+Thank you Carla Corkern and Jess Hickey for the rooms. Sharp members, honest questions, zero spectators.
+
+The gap between owners using AI in sales and owners still thinking about it widens every week. The ones in these rooms stopped thinking about it.
+
+If you chair a Vistage group and want this in your room, let us talk."""
+    check("the fragment version Greg rejected FAILS the broetry check",
+          has(_post_voice_gate(BROETRY), "broetry"))
+
+    GOOD_PARA = """For years I gave the same three-hour talk. Stand up, teach, watch the heads nod, sit down. Last week in Seattle I threw that format out. Now I teach one AI play, show it live, and the business owners build it themselves before they leave the room. They do the work, I coach.
+
+I haven't had that much fun presenting in years. A CEO who builds it themselves remembers it. The one who watched me run a demo forgets it by Friday. And every room already had one owner quietly ahead on AI, though half the time the rest of the group only found that out the same day.
+
+Thank you Carla Corkern and Jess Hickey for putting me in front of your groups. Sharp members, honest questions, zero spectators.
+
+The gap between owners using AI in sales and owners still thinking about it widens every week, and the ones in these rooms have stopped thinking about it. If you chair a Vistage group and want this in your room, let us talk."""
+    check("the grouped-paragraph rewrite PASSES the broetry check",
+          not has(_post_voice_gate(GOOD_PARA), "broetry"),
+          "; ".join(_post_voice_gate(GOOD_PARA)[:3]))
 
     # ── New Voice Bible Part 17 is the verbatim governing header ──────────
     check("Part 17 live instruction present verbatim",

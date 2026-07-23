@@ -210,6 +210,28 @@ def _post_voice_gate(post_text: str) -> list[str]:
         else:
             run = 0
 
+    # Broetry paragraph structure (added 2026-07-23 night, Greg: "write like a
+    # human with a paragraph structure not a damn robot staccato shit its
+    # killing my linkedin image"). The consecutive-short-LINE check above misses
+    # the more common tell: every sentence on its own line with a blank line
+    # between, so each blank-line PARAGRAPH is thin. Measured empirically: Greg's
+    # gold 7/21 post has 1 thin paragraph (the CTA); the version he rejected had
+    # 4. Threshold sits between them. Thin = a blank-line block under 20 words
+    # that is not a bullet list.
+    blocks = [b.strip() for b in re.split(r"\n\s*\n", post_text.strip()) if b.strip()]
+    def _is_bullet_block(b):
+        lines = [ln.strip() for ln in b.split("\n") if ln.strip()]
+        return lines and all(
+            ln.startswith(("•", "-", "*")) or re.match(r"^\d+[.)]", ln)
+            for ln in lines)
+    thin = sum(1 for b in blocks
+               if not _is_bullet_block(b) and len(b.split()) < 20)
+    if thin >= 4:
+        problems.append(
+            f"broetry paragraph structure ({thin} thin one-line paragraphs): "
+            "group sentences into full 2-4 sentence paragraphs, do not put "
+            "single sentences alone with blank lines between them")
+
     # ── Round-2 anti-pastiche checks (2026-07-23 evening) ─────────────────
     lower = post_text.lower()
     stuffed = [family[0] for family in _SIGNATURE_PHRASE_MARKERS
@@ -344,11 +366,18 @@ OPENING RULES (non-negotiable)
 - Hook under 15 words.
 
 STRUCTURE AND RHYTHM (this replaces the old Staccato format, which is banned)
-- 120 to 180 words. Paragraphs of 1 to 3 sentences. One idea per paragraph.
-- VARY sentence and paragraph length. Include one sentence under 8 words and at least
-  one over 20. The page must NOT look like a stack of one-line fragments.
-- NEVER stack one-line paragraphs for manufactured drama. Three or more consecutive
-  one-line fragments is an automatic rewrite.
+- 120 to 180 words. Write in FULL PARAGRAPHS of 2 to 4 sentences each. Aim for 3 to 5
+  paragraphs total, each a complete grouped thought.
+- The single most important rule: do NOT put one sentence alone on its own line with a
+  blank line before and after it. That one-thought-per-line "broetry" format is the exact
+  robot style that is banned. Greg's words: "write like a human with a paragraph structure
+  not a damn robot staccato shit its killing my linkedin image."
+- Group related sentences together. A paragraph is several sentences that belong together,
+  not a single line floating in white space.
+- VARY sentence length inside the paragraphs. The rhythm lives in the sentences, not in
+  chopping the post into fragments.
+- The ONLY paragraphs allowed to be a single short line are the thank-you line and the
+  closing question or CTA. Everything else is a grouped 2-4 sentence paragraph.
 - A short plain bullet list (2 to 4 bullets) is fine when it genuinely helps scanning.
   No bold-label bullets. No emoji bullets.
 - Use contractions. Start a sentence with And, But, or Because when it sounds spoken.
@@ -392,10 +421,11 @@ Excessive bullet points as argument      | Build the argument in sentences first
 
 EXAMPLE_POSTS = """
 EXAMPLES OF MY ACTUAL LINKEDIN POSTS — MATCH THIS VOICE AND FORMAT EXACTLY.
-These three are verified winners from the 2026-07-23 performance analysis of my
-real posting history. Notice what they share: real moments, real names, varied
-paragraph rhythm, zero one-liner stacks, zero em dashes, and they talk to
-owners, not reps.
+These two are verified winners from the 2026-07-23 performance analysis of my
+real posting history. Notice what they share: real moments, real names, and most
+important, FULL PARAGRAPHS of grouped sentences. No single sentence sits alone on
+its own line. This grouped-paragraph shape is the target. Zero one-liner stacks,
+zero em dashes, and they talk to owners, not reps.
 
 ---EXAMPLE 1 (real-moment story, my most-commented post ever)---
 A week of Vistage AI Masterclass sessions in Seattle. First time running my new workshop format: teach it, show it live, then the business owners build it themselves with AI before they leave the room.
@@ -417,25 +447,14 @@ When I opened Zoom for my next call, which didn't happen due to a reschedule, I 
 
 When I closed Zoom, I got this transcript. The message (besides what I thought was hilarious) is that if you have your AI Companions on and forget, it is still listening.
 
----EXAMPLE 3 (leader-lens diagnostic with a real named source)---
-Is your team confusing CADENCE with SKILL?
-
-The biggest mistake I see in cold outbound is mistaking activity for effectiveness. A perfect cadence is useless if the message is generic and self-serving.
-
-Stop hounding people with commercial reminders.
-
-Instead of: "Following up on my last email..."
-
-Try this: Lead with a specific, observed insight about their business or industry. Show them you did your homework.
-
-Focus: The goal of the first few touches is discovery and curiosity, not a meeting. As a good friend of mine says.."Prospecting is only about sorting." Thanks, Brian Jackson for that golden nugget.
-
-Cold outbound is a skill that requires research, personalization, and storytelling.
-
-Time to coach the skill, not just implement the software and count metrics.
-
-If you are sending hundreds of emails and getting silence, revisit your approach, slow down, personalize, and do your research. Be different.
 ---END EXAMPLES---
+
+NOTE ON FORMAT: Some of my older posts that got engagement were written one
+sentence per line with a blank line between each. That "broetry" style is now
+BANNED. It reads like a robot and it is hurting my brand. Both examples above are
+grouped into real paragraphs. Do the same. Every paragraph is 2 to 4 sentences
+that belong together. The only lines allowed to stand alone are the thank-you and
+the closing question.
 """
 
 

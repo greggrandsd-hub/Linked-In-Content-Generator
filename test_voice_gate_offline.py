@@ -16,7 +16,8 @@ import re
 import sys
 
 import config
-from gemini_client import (EXAMPLE_POSTS, GREG_SPOKEN_VOICE, OPENING_STYLES,
+from gemini_client import (EXAMPLE_POSTS, GREG_SPOKEN_VOICE,
+                           NEW_VOICE_BIBLE_LIVE_INSTRUCTION, OPENING_STYLES,
                            STYLE_GUIDE, VOICE_BIBLE, _enforce_banned_words,
                            _post_voice_gate)
 
@@ -202,6 +203,11 @@ Where are you starting the hard work of diagnosing your operating system before 
     problems = _post_voice_gate(
         "A VP of Sales rolled out a new tool last quarter.\n\n" + EXAMPLE_DOG)
     check("third-person character opener fails", has(problems, "case-study opener"))
+
+    # ── New Voice Bible Part 17 is the verbatim governing header ──────────
+    check("Part 17 live instruction present verbatim",
+          "recognizably like Greg and can survive contact" in NEW_VOICE_BIBLE_LIVE_INSTRUCTION
+          and "apply the red-flag card and the only-you test" in NEW_VOICE_BIBLE_LIVE_INSTRUCTION)
 
     # ── Spoken-voice corpus wired in (2026-07-23 evening) ─────────────────
     check("spoken corpus carries verified excerpts",

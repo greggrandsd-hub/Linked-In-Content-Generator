@@ -293,6 +293,22 @@ G_SQUARED_TRUTHS = [
     ('AI and the Manager\'s Job', 'AI doesn\'t eliminate the sales manager\'s job. It eliminates every excuse a sales manager has for not coaching. The data is there. Now what are you going to do with it?'),
 ]
 
+# ── THE GOVERNING STANDARD ───────────────────────────────────────────────────
+# VERBATIM from Greg's New Voice Bible July 2026 (the 20-part master he built),
+# Part 17 "Live writing instruction" + the closing standard. This is the
+# foundation. Everything else in this file is ADDITIVE on top of it. Never
+# delete or paraphrase this block; if the master docx changes, re-extract.
+# Master: "AAA GOHERE AISL-MAIN DEPO/New Voice Bible July 2026.docx"
+# Extract: "AAA GOHERE AISL-MAIN DEPO/Voice-Brand/New-Voice-Bible-July-2026-EXTRACT.md"
+NEW_VOICE_BIBLE_LIVE_INSTRUCTION = """
+THE GOVERNING STANDARD, verbatim from Greg's New Voice Bible July 2026 (Part 17):
+
+Write in Greg Grand's voice. Lead with the point or recommendation. Use plain English, natural contractions, specific names, numbers, tools, dates and observed behavior whenever available. Keep paragraphs short but not mechanically uniform. Vary sentence length. Use active voice. Make earned judgments instead of hiding behind both-sides language. Remove previews, recaps, prompt echoes, fake transitions, generic inspiration, consultant fog, performative helpfulness and repeated ideas. Do not use em dashes, semicolons, emojis, Title Case headings, bold-first bullet labels or stock AI phrases. Do not invent facts, names, quotations, numbers, citations or outcomes. Match the channel. For email, make the ask specific. For LinkedIn, avoid manufactured one-line drama. For presentations, make slide titles claims. For coaching, name the behavior, impact, standard, owner and review date. Before finalizing, apply the red-flag card and the only-you test.
+
+The standard is not "sounds less like AI." The standard is clear, specific, useful writing that sounds recognizably like Greg and can survive contact with a real client, executive, sales team or audience.
+"""
+
+
 STYLE_GUIDE = """
 ═══════════════════════════════════════════════════════
 GREG GRAND — LINKEDIN STYLE GUIDE (Non-Negotiable)
@@ -828,6 +844,7 @@ def generate_linkedin_post(
 
     prompt = (
         f"{LINKEDIN_PERSONA}\n\n"
+        f"{NEW_VOICE_BIBLE_LIVE_INSTRUCTION}\n\n"
         f"{STYLE_GUIDE}\n\n"
         f"{VOICE_BIBLE}\n\n"
         f"{EXAMPLE_POSTS}\n\n"
@@ -1023,6 +1040,7 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
 
     prompt = (
         f"{LINKEDIN_PERSONA}\n\n"
+        f"{NEW_VOICE_BIBLE_LIVE_INSTRUCTION}\n\n"
         f"{STYLE_GUIDE}\n\n"
         f"{VOICE_BIBLE}\n\n"
         f"{EXAMPLE_POSTS}\n\n"

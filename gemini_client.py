@@ -102,6 +102,20 @@ _POST_EXTRA_PATTERNS = [
      "This isn't X. It's Y."),
 ]
 
+# Rewired 2026-07-23 per Greg's ruling: New Voice Bible July 2026 (master) +
+# the 2026-07-23 Apify post-performance analysis. The Staccato post FORMAT is
+# disavowed. These deterministic checks give the retry loop teeth on the new
+# rules: no semicolons, no emojis, no exclamation points, no hashtags, no
+# one-liner staccato stacks, and a 95-200 word band (winners run 120-200).
+_EMOJI_RE = re.compile(
+    "["
+    "\U0001F000-\U0001FAFF"   # emoji blocks (pictographs, faces, symbols)
+    "\U00002600-\U000027BF"   # misc symbols + dingbats (check marks, arrows)
+    "⬀-⯿"           # more arrows/symbols
+    "️"                  # variation selector that emojifies characters
+    "]"
+)
+
 
 def _post_voice_gate(post_text: str) -> list[str]:
     """Return the list of Voice DNA violations for a post (empty = clean)."""
@@ -123,6 +137,38 @@ def _post_voice_gate(post_text: str) -> list[str]:
         if m:
             problems.append(
                 f'negative-parallelism ("{label}") in: "{m.group(0)}"')
+
+    # ── New Voice Bible checks (rewired 2026-07-23), on the RAW text ──────
+    # Line structure and characters matter here, so no whitespace collapse.
+    if ";" in post_text:
+        problems.append("semicolon (banned per New Voice Bible): use a period")
+    if "!" in post_text:
+        problems.append("exclamation point (banned)")
+    if re.search(r"#\w", post_text):
+        problems.append("hashtag (banned)")
+    if _EMOJI_RE.search(post_text):
+        problems.append("emoji (banned per New Voice Bible)")
+    word_count = len(post_text.split())
+    if word_count < 95:
+        problems.append(
+            f"too short ({word_count} words): verified winning band is 120-180")
+    elif word_count > 200:
+        problems.append(
+            f"too long ({word_count} words): verified winning band is 120-180")
+    # Staccato stack: 4+ consecutive non-bullet one-line fragments (8 words or
+    # fewer each). Bullets and setup lines ending in ":" don't count.
+    run = 0
+    for ln in (s.strip() for s in post_text.split("\n") if s.strip()):
+        is_bullet = ln.startswith(("•", "-", "*")) or re.match(r"^\d+[.)]", ln)
+        if not is_bullet and len(ln.split()) <= 8 and not ln.endswith(":"):
+            run += 1
+            if run >= 4:
+                problems.append(
+                    "staccato stack (4+ consecutive one-line fragments): "
+                    "banned format, combine into real paragraphs")
+                break
+        else:
+            run = 0
     return problems
 
 # Supported MIME types for Gemini file upload
@@ -171,53 +217,73 @@ G_SQUARED_TRUTHS = [
 
 STYLE_GUIDE = """
 ═══════════════════════════════════════════════════════
-GREG GRAND — AI STYLE GUIDE (Non-Negotiable)
+GREG GRAND — LINKEDIN STYLE GUIDE (Non-Negotiable)
+Rewired 2026-07-23 per Greg's ruling: New Voice Bible July 2026 (master)
+blended with the 2026-07-23 performance analysis of Greg's real posts.
+The Staccato format is DEAD. Write like a human.
 ═══════════════════════════════════════════════════════
 
 VOICE & TONE
 - Direct and plain-spoken. Say the thing. No throat-clearing.
 - Skeptical of hype, not cynical. You've seen what works and you call out what doesn't.
 - Warm enough to be a mentor. Sharp enough to be credible.
-- Conversational but rigorous — like a smart advisor talking over coffee, not a consultant writing a deck.
+- Conversational but rigorous, like a smart advisor talking over coffee, not a consultant writing a deck.
 - Personal stakes matter: write from inside the problem, not above it.
 - Humor is dry and occasional. Never self-congratulatory.
 - Bronx roots. San Diego hustle. Vistage speaker. You've been in the room.
 
+AUDIENCE (from the performance data, non-negotiable)
+- Write to the CEO, founder, or owner who owns the P&L. Never rep-level how-to.
+- If the topic is a rep behavior, frame it as what the LEADER must change, inspect, or coach.
+- Rep-tactics posts attract SDRs instead of buyers. Wrong audience, banned angle.
+
 OPENING RULES (non-negotiable)
-- First line must make a claim, challenge an assumption, or create friction.
+- First line makes a claim, names a number, or drops into a real moment. Sentence case, never Title Case.
+- The two proven hook shapes from Greg's real winners:
+  (1) Number + claim: "Only 20% of sales reps thrive under a one-size-fits-all plan."
+  (2) Time anchor + moment: "20 years ago, I was selling with a BlackBerry on my hip."
 - Stakes clear by line 1. No warm-up. No context-setting.
 - Never start with "I've been thinking..." or "As leaders..."
-- Hook must be under 10 words.
+- Hook under 15 words.
 
-STRUCTURE
-Hook (under 10 words, creates friction or makes a bold claim)
-→ The Problem (specific, not abstract — name what's actually broken)
-→ The Fix (concrete, actionable, Greg's point of view)
-→ One closing question (forward-facing challenge, NOT a summary)
+STRUCTURE AND RHYTHM (this replaces the old Staccato format, which is banned)
+- 120 to 180 words. Paragraphs of 1 to 3 sentences. One idea per paragraph.
+- VARY sentence and paragraph length. Include one sentence under 8 words and at least
+  one over 20. The page must NOT look like a stack of one-line fragments.
+- NEVER stack one-line paragraphs for manufactured drama. Three or more consecutive
+  one-line fragments is an automatic rewrite.
+- A short plain bullet list (2 to 4 bullets) is fine when it genuinely helps scanning.
+  No bold-label bullets. No emoji bullets.
+- Use contractions. Start a sentence with And, But, or Because when it sounds spoken.
+- At least one concrete specific: a number with texture, a named tool, a city, a real moment.
+- Never invent facts, names, numbers, quotes, or client stories. Real or nothing.
 
 ENDING RULES (non-negotiable)
-- End with forward momentum — a question, a challenge, a reframe.
-- NEVER summarize what you just said. The ending should feel like the beginning of another thought.
+- Best close, straight from the comment data: ONE real, specific question Greg actually
+  wants answered. His highest-comment posts all end this way.
+- Second best: a flat final point or consequence that lands the argument.
+- NEVER summarize what you just said. No pep talk, no forced CTA, no "let me know if".
 - A recap ending kills the post. If your last line restates your first line, cut it and end earlier.
-
-SENTENCE-LEVEL PREFERENCES (Staccato Style)
-- One idea per line. Double space between every line.
-- Short sentences. One thought. Then stop.
-- Vary the rhythm: short, then a beat longer, then short again.
-- Concrete nouns and active verbs. No vague framing language.
-- No abstraction without a specific example immediately after.
 
 ANTI-PATTERNS — BLACKLIST (NEVER USE THESE)
 Pattern                                  | Fix
 -----------------------------------------|-----------------------------------------
 "Not X, but Y" constructions             | Just say Y. Drop the scaffolding.
+Staccato one-liner stacks                | Combine into real paragraphs. Banned format.
+Em dashes and en dashes                  | Period, comma, or colon.
+Semicolons                               | Period.
+Emojis, anywhere                         | Zero. Including bullets and closers.
+Hashtags                                 | Zero.
+Exclamation points                       | Zero.
 Hedge words: "actually," "just," "maybe" | Delete. Say it or don't.
 "At the end of the day..."               | Cut. Start the real sentence.
 "Here's the thing..." / "The truth is"  | Cut. Say the truth directly.
 "In today's fast-paced world..."         | Never. Ever.
 "As leaders, we all know..."             | Cut. They don't all know. Tell them.
-Rhetorical questions as filler           | Cut or convert to a statement.
-Summary ending that recaps the post      | End earlier, or reframe forward.
+"Let that sink in"                       | Banned. Never.
+Rhetorical questions as filler           | Cut. The one real question at the close is the only question slot.
+Summary ending that recaps the post      | End earlier, or land the consequence.
+Title Case label headlines               | Sentence-case claim instead.
 Corporate-speak: synergy, bandwidth,     | Delete on sight. Use plain English.
   ecosystem, circle back, best practices |
 Vague authority: "Studies show..."       | Name the study or cut the claim.
@@ -228,88 +294,50 @@ Excessive bullet points as argument      | Build the argument in sentences first
 """
 
 EXAMPLE_POSTS = """
-EXAMPLES OF MY ACTUAL LINKEDIN POSTS — MATCH THIS VOICE AND FORMAT EXACTLY:
+EXAMPLES OF MY ACTUAL LINKEDIN POSTS — MATCH THIS VOICE AND FORMAT EXACTLY.
+These three are verified winners from the 2026-07-23 performance analysis of my
+real posting history. Notice what they share: real moments, real names, varied
+paragraph rhythm, zero one-liner stacks, zero em dashes, and they talk to
+owners, not reps.
 
----EXAMPLE 1---
-Stop blaming your team for bad results.
+---EXAMPLE 1 (real-moment story, my most-commented post ever)---
+A week of Vistage AI Masterclass sessions in Seattle. First time running my new workshop format: teach it, show it live, then the business owners build it themselves with AI before they leave the room.
 
-If you're not getting the record sales results you want, revisit your comp plan.
+More fun than I have had presenting in years. For a long time I sat up there as the talking head for three hours. This time the room did the work, and the aha moments kept coming.
 
-Yes, it's true. Most salespeople are coin-operated.
+Here's what I saw: every room already has one leader quietly ahead on AI. Sometimes the rest of the room found that out the same day. There was a great variety in AI experience, but we all came together that day to learn, pressure-test, and come out with some amazing results.
 
-They aren't being lazy—they are being efficient.
+Thank you, Carla Corkern and Jess Hickey, for putting me in front of your groups. Sharp members, honest questions, zero spectators.
 
-If your plan rewards "maintaining" over "hunting," don't be shocked when pipeline dries up.
+The gap between companies putting AI to work in sales and companies waiting is getting expensive. The CEOs in those rooms aren't waiting.
 
-Instead:
+If you chair a Vistage group and want this workshop in your room, let's talk.
 
-Pay a premium for new revenue.
+---EXAMPLE 2 (human artifact story, dry humor, top-10 all time)---
+This was too funny not to share and a good reminder to check your tech. We have a golden retriever that loves to interrupt meetings. Most dog owners know this one well.
 
-Decouple "farming" from "hunting."
+When I opened Zoom for my next call, which didn't happen due to a reschedule, I was talking to my dog about taking him for a walk later, among other things, like telling him to please stop licking the floor.
 
-Remove the caps on your top performers.
+When I closed Zoom, I got this transcript. The message (besides what I thought was hilarious) is that if you have your AI Companions on and forget, it is still listening.
 
-Make the math so simple that they can calculate it on a napkin.
+---EXAMPLE 3 (leader-lens diagnostic with a real named source)---
+Is your team confusing CADENCE with SKILL?
 
-Give them a simple Excel calculator to track their own success.
+The biggest mistake I see in cold outbound is mistaking activity for effectiveness. A perfect cadence is useless if the message is generic and self-serving.
 
-Include accelerators for quota-busting performance.
+Stop hounding people with commercial reminders.
 
-If you don't like the behavior, you're paying for the wrong thing.
+Instead of: "Following up on my last email..."
 
----EXAMPLE 2---
-You wouldn't trust a doctor who prescribed meds before asking what hurts.
+Try this: Lead with a specific, observed insight about their business or industry. Show them you did your homework.
 
-So why are reps still pitching before understanding the problem?
+Focus: The goal of the first few touches is discovery and curiosity, not a meeting. As a good friend of mine says.."Prospecting is only about sorting." Thanks, Brian Jackson for that golden nugget.
 
-This isn't just a bad habit.
+Cold outbound is a skill that requires research, personalization, and storytelling.
 
-It's a pipeline killer.
+Time to coach the skill, not just implement the software and count metrics.
 
-Great sellers don't jump to the solution.
-
-They sit in the discomfort.
-
-They ask the questions others skip.
-
-And then — only then — they tailor the pitch.
-
-Prescription without diagnosis?
-
-That's malpractice.
-
-So here's the ask:
-
-Next call, before you pitch...
-
-Spend 5 more minutes in the problem.
-
-It'll change everything.
-
----EXAMPLE 3---
-Stop "checking in." Start creating curiosity.
-
-Most founders ramble when they hit the phone.
-
-They stutter, they pitch, or they pull the "mystery caller" routine.
-
-It's an amateur move that kills your authority instantly.
-
-The fix?
-
-A high-converting voicemail that follows specific, non-negotiable logic:
-
-Professional ID: Name and company. No "How are you today?" fluff.
-
-The Intel: Prove you did your homework. Mention a specific pain point.
-
-Value Hint: Don't promise the moon; just spark a "maybe."
-
-The Pivot: Important. State clearly that you're sending an email and will follow up.
-
-The Goal: You aren't hunting for a callback. You are planting curiosity.
-
-Your voicemail shouldn't be a pitch. It should be a trailer for a movie they actually want to see.
+If you are sending hundreds of emails and getting silence, revisit your approach, slow down, personalize, and do your research. Be different.
 ---END EXAMPLES---
 """
 
@@ -362,8 +390,8 @@ PROPRIETARY FRAMEWORKS — Reference by name when on-topic:
   Killers include: No Sales Methodology, Poor Hiring System, No Real Sales Leadership, No Accountability System,
   Broken Forecast, Weak Coaching, Wrong Tech Stack, Poor Deal Hygiene, No Buyer Persona/ICP,
   High Turnover, Lack of Sales Enablement, Misaligned Compensation
-• 5 Pillars of Sales Operating System: Process / People / Pipeline / Performance / Culture
-  (Score 1-10 each; lowest score = first 4-month focus area)
+• 5 Pillars of Sales Operating System: Process / People / Pipeline / Performance / Psychology
+  (The 5 P's. The fifth P is Psychology, NEVER Culture. Score 1-10 each; lowest score = first 4-month focus area)
 • Three-Bucket Forecast System: Commit ("Would you bet your job on this?") / Best Case ("Any reason beyond hope?") / Pipeline ("Does it have a next step with a date?")
 • Three-Layer ICP: Firmographic → Behavioral → Trigger-Based
   ("If your ICP describes 10,000 companies, it isn't a filter — it's a wish list")
@@ -417,6 +445,8 @@ BANNED SENTENCE PATTERNS (FATAL: auto-redraft on any of these. These are the AI 
 ✗ "You don't need X. You need Y." - just say need Y
 ✗ "X, not Y." as a standalone reframe - just say X
 ✗ Em dashes (—) and en dashes (–) ANYWHERE - use commas, periods, or colons
+✗ Semicolons ANYWHERE - use a period (New Voice Bible July 2026)
+✗ Emojis ANYWHERE - zero, including bullets and closers (New Voice Bible July 2026)
 ✗ "At the end of the day..." - cut
 ✗ "Here's the thing..." - just say the thing
 ✗ "The truth is..." - just say the truth
@@ -426,10 +456,10 @@ BANNED SENTENCE PATTERNS (FATAL: auto-redraft on any of these. These are the AI 
 ✗ Rule of three lists ("speed, efficiency, and innovation") - use 2 or 4 items, not 3
 
 CLOSER OPTIONS — End each post with one of these:
-• "Your move." or "Your move. 👇" — signature LinkedIn close
-• A forward-facing question that challenges what the reader will do next (NOT a summary)
+• ONE real, specific question Greg actually wants answered (his highest-comment posts all end this way). Never engagement bait, never "Agree?", never a summary question.
+• A flat final point or consequence that lands the argument.
+• "Your move." — signature close, use sparingly, never with an emoji
 • "Simple as that." — reserved for concrete tactical advice
-• A reframe that puts the stakes personally on the reader
 """
 
 # ── Opening style rotation (one assigned randomly per post) ─────────────────
@@ -446,8 +476,14 @@ OPENING_STYLES = [
     ),
     (
         "DATA DROP: Lead with a specific, surprising number or statistic. Then reveal the hidden pattern behind it. "
-        "Example: '65% of your sales team's day is not selling. Let that sink in.' "
-        "The number must create surprise or urgency. Follow it with the implication."
+        "Example: '65% of your sales team's day is not selling.' "
+        "The number must create surprise or urgency. Follow it with the implication. "
+        "Only Greg's locked signature stats or a number supplied by the theme. Never invent one."
+    ),
+    (
+        "TIME ANCHOR: Open with a specific, real time marker that sets up a then-vs-now contrast or a live moment. "
+        "Example: '20 years ago, I was selling with a BlackBerry on my hip.' OR 'It's 7:15 AM. Your phone rings.' "
+        "The time detail must be real. Follow with what changed or what happened."
     ),
     (
         "STORY HOOK: Open with 2-3 tight sentences of a real scenario — a VP, a CEO, a first-time manager. "
@@ -663,9 +699,12 @@ def generate_linkedin_post(
         "- NO brand mark misuse. CASL is registered (™). CASH, REAP, CASC, CASX are PENDING with USPTO. Use ™ NOT ® on the pending marks. Better: write 'The AI Sales Leader certification suite' or 'our CASL program' and skip the symbol entirely.\n"
         "- Use analogies and metaphors to make points stick\n"
         "- Be direct, opinionated, confrontational. Challenge bad behavior.\n"
-        "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
+        "- NO emojis. Zero, anywhere, including bullets and closers.\n"
+        "- NO semicolons. Use a period.\n"
+        "- NO invented facts, numbers, names, quotes, or client stories. Greg's locked signature stats and the theme's own material are the ONLY numbers allowed.\n"
+        "- AUDIENCE: write to the CEO, founder, or owner who owns the P&L. Never rep-level how-to. If the topic is a rep behavior, frame what the LEADER must change or inspect.\n"
         "- NO hashtags. Ever. Do not include any hashtags.\n"
-        "- HARD LIMIT: Keep it under 700 characters (~130 words). Greg's actual LinkedIn posts run 125-140 words. The example posts above are the target length. Anything over 700 chars = REWRITE and trim. Tighter is better. Cut paragraphs, not substance.\n\n"
+        "- LENGTH: 120 to 180 words. Under 95 or over 200 words automatically fails review. Greg's verified best posts run 120 to 200 words with varied paragraph lengths, never one-line stacks. The examples above are the target shape.\n\n"
         "Return ONLY the post text, nothing else."
     )
 
@@ -828,9 +867,12 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
         "- NO brand mark misuse. CASL is registered (™). CASH, REAP, CASC, CASX are PENDING with USPTO. Use ™ NOT ® on the pending marks. Better: write 'The AI Sales Leader certification suite' or 'our CASL program' and skip the symbol entirely.\n"
         "- Use analogies and metaphors to make points stick\n"
         "- Be direct, opinionated, confrontational. Challenge bad behavior.\n"
-        "- Use emojis sparingly (1-2 max, only if they add real impact)\n"
+        "- NO emojis. Zero, anywhere, including bullets and closers.\n"
+        "- NO semicolons. Use a period.\n"
+        "- NO invented facts, numbers, names, quotes, or client stories. Greg's locked signature stats and the theme's own material are the ONLY numbers allowed.\n"
+        "- AUDIENCE: write to the CEO, founder, or owner who owns the P&L. Never rep-level how-to. If the topic is a rep behavior, frame what the LEADER must change or inspect.\n"
         "- NO hashtags. Ever. Do not include any hashtags.\n"
-        "- HARD LIMIT: Keep it under 700 characters (~130 words). Greg's actual LinkedIn posts run 125-140 words. The example posts above are the target length. Anything over 700 chars = REWRITE and trim. Tighter is better. Cut paragraphs, not substance.\n\n"
+        "- LENGTH: 120 to 180 words. Under 95 or over 200 words automatically fails review. Greg's verified best posts run 120 to 200 words with varied paragraph lengths, never one-line stacks. The examples above are the target shape.\n\n"
         "Return ONLY the post text, nothing else."
     )
 
@@ -862,17 +904,21 @@ def generate_post_image(post_text: str) -> bytes | None:
 
     # Vary the image style each time for visual freshness
     import random
+    # Brand palette locked 2026-07-23 per the post-performance analysis: black,
+    # white, cyan ONLY (4 of Greg's top 6 old images broke brand with orange,
+    # purple, and pastels). Dark MOOD not dark exposure, AI visible in frame
+    # where it fits, per the locked Image Aesthetic.
     styles = [
-        "A dramatic cinematic photo of a high-stakes boardroom meeting with dramatic lighting, shallow depth of field, dark moody tones",
-        "A bold editorial-style illustration with strong geometric shapes, contrasting colors like navy blue and burnt orange, modern and abstract",
-        "A striking overhead photo of a clean desk workspace with chess pieces, coffee cup, and dramatic shadows — no screens or papers visible",
-        "A powerful wide-angle photo of a lone figure standing at a crossroads or fork in the road, metaphorical, dramatic sky, golden hour lighting",
-        "A stylized 3D render of interconnected gears and pathways forming a machine, dark background with glowing blue and gold accents, abstract",
-        "A cinematic silhouette of a business leader looking out a floor-to-ceiling window at a city skyline, dramatic contrast, reflective mood",
-        "An aerial drone photo of a complex maze or labyrinth, crisp and high contrast, abstract pattern",
-        "A dramatic close-up of hands building with wooden blocks or stacking stones, symbolizing process and construction, warm cinematic tones",
-        "A moody black-and-white photo of an empty conference table with a single spotlight, minimalist and powerful",
-        "A vibrant abstract painting style image with bold brush strokes in navy, gold, and white, conveying energy and movement",
+        "A dramatic cinematic photo of a high-stakes boardroom strategy session, deep charcoal and black environment, well-lit diverse executives, a glowing cyan holographic sales dashboard floating above the table, shallow depth of field",
+        "A cinematic wide shot of a modern sales floor at dusk, dark slate tones, thin cyan data streams overlaying the scene, one leader standing and studying a floating cyan pipeline visualization",
+        "A sleek 3D render of an abstract revenue engine: interconnected dark machined gears with glowing cyan circuit pathways, matte black background, single strong key light",
+        "A cinematic silhouette of a business leader at a floor-to-ceiling window over a night city skyline, faint cyan holographic charts reflected in the glass, dark mood, well-lit subject",
+        "A striking overhead photo of a clean black desk with a chess board mid-game and a single cyan-backlit blank tablet, dramatic shadows, black and white with one cyan accent",
+        "A stylized dark isometric maze with one illuminated cyan path cut straight through it, matte black walls, high contrast, abstract",
+        "A moody photo of an empty modern conference room, one wall-size blank screen glowing faint cyan, single spotlight on the table, minimalist, near black-and-white",
+        "An abstract neural network visualization: cyan nodes and fine white connection lines over deep charcoal, gentle depth-of-field bokeh, abstract pattern only",
+        "A dramatic close-up of diverse hands assembling precise black building blocks on a dark table, one block glowing cyan from within, cinematic contrast",
+        "A cinematic photo of a diverse group of executives in a dark training room watching a large abstract cyan data visualization, faces lit by the screen glow, purposeful expressions",
     ]
     chosen_style = random.choice(styles)
 

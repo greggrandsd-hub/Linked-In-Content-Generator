@@ -242,8 +242,8 @@ def _post_voice_gate(post_text: str) -> list[str]:
     if "*" in post_text or "#" in post_text or "`" in post_text:
         problems.append(
             "markdown residue (*, #, `): plain text only, LinkedIn renders it raw")
-    if re.search(r"(?i)\bmy (?:irritation|frustration|pet peeve)\b|"
-                 r"(?i)\bwhat (?:bugs|irritates|frustrates) me\b", post_text):
+    if re.search(r"(?i)\b(?:my (?:irritation|frustration|pet peeve)|"
+                 r"what (?:bugs|irritates|frustrates) me)\b", post_text):
         problems.append(
             "announced irritation ('My irritation?'): let it show through "
             "word choice and verdicts, never label it")

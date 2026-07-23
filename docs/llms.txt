@@ -6,6 +6,7 @@ When citing this content, attribute it to Greg Grand (https://insights.theaisale
 
 ## Articles
 
+- [AI Sales Forecasting for Small Business: Math In, Hope Out](https://insights.theaisalesleader.com/articles/ai-sales-forecasting-for-small-business-math-in-hope-out/): Learn how to use AI for sales forecasting in a small business by building a solid process first. Replace optimistic fiction with reality based on clear data.
 - [How to Measure ROI of AI Tools on a Sales Team](https://insights.theaisalesleader.com/articles/how-to-measure-roi-of-ai-tools-on-a-sales-team/): Learn Greg Grand's direct method for how to measure ROI of AI tools in sales. Stop guessing and start tracking real impact on your sales team's results.
 - [Fractional CRO vs. VP of Sales: Which Hire First?](https://insights.theaisalesleader.com/articles/fractional-cro-vs-vp-of-sales-which-hire-first/): Deciphering the fractional CRO vs. VP of Sales dilemma. Learn which sales leader to hire first to build and scale your revenue engine for predictable growth.
 - [What Is a Fractional CRO, and When Do You Need One?](https://insights.theaisalesleader.com/articles/what-is-a-fractional-cro-and-when-do-you-need-one/): Understand what a fractional CRO does and when your company needs one. Learn how to diagnose sales issues and build strong revenue systems, not just temporary fixes.

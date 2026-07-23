@@ -16,8 +16,8 @@ import re
 import sys
 
 import config
-from gemini_client import (EXAMPLE_POSTS, OPENING_STYLES, STYLE_GUIDE,
-                           VOICE_BIBLE, _enforce_banned_words,
+from gemini_client import (EXAMPLE_POSTS, GREG_SPOKEN_VOICE, OPENING_STYLES,
+                           STYLE_GUIDE, VOICE_BIBLE, _enforce_banned_words,
                            _post_voice_gate)
 
 EXAMPLE_VISTAGE = """A week of Vistage AI Masterclass sessions in Seattle. First time running my new workshop format: teach it, show it live, then the business owners build it themselves with AI before they leave the room.
@@ -203,15 +203,44 @@ Where are you starting the hard work of diagnosing your operating system before 
         "A VP of Sales rolled out a new tool last quarter.\n\n" + EXAMPLE_DOG)
     check("third-person character opener fails", has(problems, "case-study opener"))
 
-    # ── Drop-not-kill resilience (offline, stubbed generator) ─────────────
+    # ── Spoken-voice corpus wired in (2026-07-23 evening) ─────────────────
+    check("spoken corpus carries verified excerpts",
+          all(s in GREG_SPOKEN_VOICE for s in
+              ["show up and throw up salespeople", "dirty socks",
+               "I still get chills", "no, you're a sales guy"]))
+    check("spoken corpus has no invented-stat joke or dashes",
+          "64.3" not in GREG_SPOKEN_VOICE
+          and chr(8212) not in GREG_SPOKEN_VOICE
+          and chr(8211) not in GREG_SPOKEN_VOICE)
+    check("spoken corpus keeps the written bans explicit",
+          "written bans still apply" in GREG_SPOKEN_VOICE)
+
+    # ── New gate checks: company size, markdown residue, announced emotion ─
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nThat saved 400 hours for a mid-sized team.")
+    check("company-size mention fails", has(problems, "company-size"))
+
+    problems = _post_voice_gate(
+        EXAMPLE_DOG.replace("this transcript", "this *exact* transcript"))
+    check("markdown residue fails", has(problems, "markdown residue"))
+
+    problems = _post_voice_gate(
+        EXAMPLE_DOG + "\n\nMy irritation? Leaders who skip the basics.")
+    check("announced irritation fails", has(problems, "announced irritation"))
+
+    # ── Drop-not-kill resilience + batch variety (offline, stubbed) ───────
     import gemini_client as gc
     real_gen = gc.generate_linkedin_post
-    calls = {"n": 0}
+    calls = {"n": 0, "avoid_seen": []}
 
-    def one_bad(uploaded_file, theme=None):
+    def one_bad(uploaded_file, theme=None, avoid_notes=""):
         calls["n"] += 1
+        calls["avoid_seen"].append(avoid_notes)
         if calls["n"] == 2:
             raise ValueError("stub: option failed gate")
+        if calls["n"] == 1:
+            return (theme[0] if theme else "t",
+                    "stub post that got back 400 hours of selling")
         return (theme[0] if theme else "t", "stub post text")
 
     try:
@@ -220,9 +249,12 @@ Where are you starting the hard work of diagnosing your operating system before 
         got = gc.generate_n_options("ref", 5)
         check("one failed option is dropped, survivors ship", len(got) == 4,
               f"got {len(got)}")
+        check("batch variety: later options told to avoid used markers",
+              any("400 hours" in a for a in calls["avoid_seen"][1:]),
+              str(calls["avoid_seen"]))
 
-        gc.generate_linkedin_post = lambda u, theme=None: (_ for _ in ()).throw(
-            ValueError("stub: all fail"))
+        gc.generate_linkedin_post = lambda u, theme=None, avoid_notes="": (
+            (_ for _ in ()).throw(ValueError("stub: all fail")))
         try:
             gc.generate_n_options("ref", 3)
             check("all options failing raises", False, "no exception raised")

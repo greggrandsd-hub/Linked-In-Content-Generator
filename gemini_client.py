@@ -231,6 +231,22 @@ def _post_voice_gate(post_text: str) -> list[str]:
         problems.append(
             "third-person case-study opener: tell it as Greg lived it "
             "('A CEO called me'), never as an invented case study")
+    # Company-size mentions block prospects out (CLAUDE.md hard rule; slipped
+    # into a live option as "mid-sized team" 2026-07-23 evening).
+    if re.search(r"(?i)\b(?:mid-?size[d]?|small\s+business(?:es)?|SMBs?|"
+                 r"enterprise-level|small\s+and\s+medium|"
+                 r"\d+\s*-?\s*(?:rep|person|people|employee)s?\s+(?:team|company|org))\b",
+                 post_text):
+        problems.append(
+            "company-size mention (banned: blocks prospects out)")
+    if "*" in post_text or "#" in post_text or "`" in post_text:
+        problems.append(
+            "markdown residue (*, #, `): plain text only, LinkedIn renders it raw")
+    if re.search(r"(?i)\bmy (?:irritation|frustration|pet peeve)\b|"
+                 r"(?i)\bwhat (?:bugs|irritates|frustrates) me\b", post_text):
+        problems.append(
+            "announced irritation ('My irritation?'): let it show through "
+            "word choice and verdicts, never label it")
     return problems
 
 # Supported MIME types for Gemini file upload
@@ -404,6 +420,62 @@ Time to coach the skill, not just implement the software and count metrics.
 
 If you are sending hundreds of emails and getting silence, revisit your approach, slow down, personalize, and do your research. Be different.
 ---END EXAMPLES---
+"""
+
+
+# ── How Greg actually talks (added 2026-07-23 evening) ───────────────────────
+# VERBATIM excerpts from four podcast episodes where Greg is the guest,
+# machine-verified against the transcripts in
+# "AAA GOHERE AISL-MAIN DEPO/VIdeos for LI _Podcast-Clips/". This is the real
+# spoken voice the posts must channel. Trims marked [...]. Do not "clean up"
+# these excerpts: the texture is the point.
+GREG_SPOKEN_VOICE = """
+HOW GREG ACTUALLY TALKS. Verbatim from his podcast appearances. Channel THIS
+man. The writing rules still apply on the page, but the rhythm, attitude, and
+moves below are the voice:
+
+--- The engineer origin story (performed dialogue, both parts) ---
+"I was interviewing with companies and they kept offering me sales jobs. I said, no, I'm an engineer and they said, no, you're a sales guy. [...] So I finally went over, went to the dark side. [...] And then I realized, wait, these guys are making a lot more money than me. And I'm doing all the heavy lifting and sales."
+
+--- The lunch question (heat, direct address, blunt verdict) ---
+"I'll say to every CEO when I start with them, one of the first questions I ask is, when's the last time you had lunch with your top salesperson? And I get looks like I'm an alien. And that to me is, it's malpractice. Right? So the guy that is bringing in, a woman that's bringing in the most money that's paying for your finance and your COO and everybody else on your team, you don't even know what their kids' names are."
+
+--- Self-implication first (confession with real numbers) ---
+"Even myself, I was guilty. I spent a year and a half chasing the shiny nickel, right? Oh, I got this email. This one's got to do this one. [...] I would be embarrassed to show you the folder, but I had a folder on my desktop of about 150 200 different website links that I was going to eventually get to. That's not the way to do it."
+
+--- Naming things on the fly (plain-English tag) ---
+"I'd say over 90% of salespeople are what I call show up and throw up salespeople. So they want to come in and they want to pitch a deck and they want to show you a PDF and I'll tell any salesperson the best presentation is the one you never did."
+
+--- The number ladder that annualizes to a kicker ---
+"They just saved eight hours of planning. Right. That's 32 hours a month. Annualize that that's 400 hours of selling you got back by one prompt."
+
+--- Why he does the work (one feeling, stated flat, then back to mechanics) ---
+"The responses I get back, I still get chills when I talk about it because the responses I get back make me feel like I really have an impact on their lives. When I was in the corporate business, maybe not so much. It was more about selling products."
+
+--- The oddball concrete detail as proof of life ---
+"I had some job interviews where guys were on a couch with dirty socks on the couch. True story. So I think you just need to be detailed and not just taken it. They have a good resume and they seem like a good person. Go deeper."
+
+--- The CEO sermon (direct address, quarter-by-quarter ladder, honest caveat) ---
+"This goes out to every CEO out there that's bringing a new sales person or hiring a new sales person. You have to realize that this is an investment. [...] Don't expect the sales person is going to come in and start making it rain at month two or three. Because they're generally not. Usually the first 90 days is they're learning. They're starting to build a pipeline."
+
+THE MOVES (all grounded in the excerpts above):
+- Verdict first, then a lived scene, then a short landing line.
+- He PERFORMS dialogue, both parts: "I said... and they said...". He re-enacts, never summarizes.
+- Numbers arrive as ladders that annualize to a kicker (8 hours, 32 a month, 400 a year).
+- He self-implicates before advising. Confession is his trust move, and it carries a real number.
+- He names things on the fly: "what I call show up and throw up salespeople".
+- Oddball concrete details are his proof of life: dirty socks, the desktop folder of 200 links, kids' names.
+- Short blunt verdicts land the point: "It's malpractice." "That's not the way to do it." "Go deeper."
+- "So" is his gear-shift and his bow. One "right?" per post maximum, never stacked.
+- One flat feeling statement with evidence beats any inspiration: "I still get chills."
+- Direct address to the exact person he's gunning for: "this goes out to every CEO out there".
+
+ON THE PAGE (adapting speech to writing):
+- Drop the "you know" fillers and repair false starts. Keep everything else that sounds like him.
+- No profanity in posts, even mild.
+- Never mention company size or headcount.
+- The written bans still apply completely: no em dashes, no semicolons, no negative parallelism
+  (he says it out loud sometimes, it NEVER goes on the page), no invented stats or people.
 """
 
 
@@ -682,9 +754,26 @@ def pick_diverse_themes(count: int = 5) -> list[tuple[str, str | None]]:
     return picks
 
 
+# Batch-variety markers: numbers and stories from the corpus that read as an
+# AI tell when they repeat across options in ONE email (the 400-hours ladder
+# appeared in two of four options, 2026-07-23 evening).
+_BATCH_VARIETY_MARKERS = [
+    "400 hours", "65%", "3x more productive", "10x faster", "shiny nickel",
+    "dirty socks", "lunch with your top salesperson", "show up and throw up",
+    "I still get chills", "you're a sales guy", "thirty years",
+]
+
+
+def _batch_markers(text: str) -> list[str]:
+    """Which variety markers a finished option used (for cross-option dedup)."""
+    lower = text.lower()
+    return [m for m in _BATCH_VARIETY_MARKERS if m.lower() in lower]
+
+
 def generate_linkedin_post(
     uploaded_file: types.File | str,
     theme: tuple[str, str | None] | None = None,
+    avoid_notes: str = "",
 ) -> tuple[str, str]:
     """
     Generate a single LinkedIn post for a specific theme.
@@ -742,6 +831,7 @@ def generate_linkedin_post(
         f"{STYLE_GUIDE}\n\n"
         f"{VOICE_BIBLE}\n\n"
         f"{EXAMPLE_POSTS}\n\n"
+        f"{GREG_SPOKEN_VOICE}\n\n"
         f"ASSIGNED OPENING STYLE FOR THIS POST:\n"
         f"{opening_style}\n"
         f"You MUST open using this style. Do not default to a generic hook.\n\n"
@@ -770,9 +860,18 @@ def generate_linkedin_post(
         "- NO invented facts, numbers, names, quotes, or client stories. Greg's locked signature stats and the theme's own material are the ONLY numbers allowed.\n"
         "- AUDIENCE: write to the CEO, founder, or owner who owns the P&L. Never rep-level how-to. If the topic is a rep behavior, frame what the LEADER must change or inspect.\n"
         "- NO hashtags. Ever. Do not include any hashtags.\n"
+        "- NO profanity, even mild. NO company-size or headcount mentions.\n"
+        "- NO announced emotions ('My irritation?', 'What bugs me:'). Let the heat show in word choice and verdicts.\n"
         "- LENGTH: 120 to 180 words. Under 95 or over 200 words automatically fails review. Greg's verified best posts run 120 to 200 words with varied paragraph lengths, never one-line stacks. The examples above are the target shape.\n\n"
         "Return ONLY the post text, nothing else."
     )
+
+    if avoid_notes:
+        prompt += (
+            "\n\nBATCH VARIETY (non-negotiable): earlier options in this "
+            "batch already used these numbers/stories: " + avoid_notes
+            + ". Do NOT reuse any of them. Pick different specifics."
+        )
 
     # Build contents — if it's extracted text, include inline; if File, reference it
     if isinstance(uploaded_file, str):
@@ -861,6 +960,7 @@ def generate_n_options(
         themes = pick_random_themes(count)
 
     options = []
+    used_markers: list[str] = []
     for i, theme in enumerate(themes, 1):
         print(f"\n--- Generating Option {i} of {count} ---")
         # Drop-not-kill (2026-07-23 evening): a single unfixable option used to
@@ -869,8 +969,12 @@ def generate_n_options(
         # failed option is dropped loudly and the survivors ship. Zero
         # survivors still fails the run.
         try:
-            result = generate_linkedin_post(uploaded_file, theme=theme)
+            result = generate_linkedin_post(
+                uploaded_file, theme=theme,
+                avoid_notes=", ".join(used_markers))
             options.append(result)
+            used_markers.extend(m for m in _batch_markers(result[1])
+                                if m not in used_markers)
         except ValueError as e:
             print(f"[Voice Gate] DROPPED option {i} ('{theme[0]}'): {e}")
         # Small delay between calls to avoid rate limits
@@ -922,6 +1026,7 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
         f"{STYLE_GUIDE}\n\n"
         f"{VOICE_BIBLE}\n\n"
         f"{EXAMPLE_POSTS}\n\n"
+        f"{GREG_SPOKEN_VOICE}\n\n"
         f"ASSIGNED OPENING STYLE FOR THIS POST:\n"
         f"{opening_style}\n"
         f"You MUST open using this style. Do not default to a generic hook.\n\n"
@@ -954,6 +1059,8 @@ def generate_freestyle_post(user_topic: str) -> tuple[str, str]:
         "- NO invented facts, numbers, names, quotes, or client stories. Greg's locked signature stats and the theme's own material are the ONLY numbers allowed.\n"
         "- AUDIENCE: write to the CEO, founder, or owner who owns the P&L. Never rep-level how-to. If the topic is a rep behavior, frame what the LEADER must change or inspect.\n"
         "- NO hashtags. Ever. Do not include any hashtags.\n"
+        "- NO profanity, even mild. NO company-size or headcount mentions.\n"
+        "- NO announced emotions ('My irritation?', 'What bugs me:'). Let the heat show in word choice and verdicts.\n"
         "- LENGTH: 120 to 180 words. Under 95 or over 200 words automatically fails review. Greg's verified best posts run 120 to 200 words with varied paragraph lengths, never one-line stacks. The examples above are the target shape.\n\n"
         "Return ONLY the post text, nothing else."
     )

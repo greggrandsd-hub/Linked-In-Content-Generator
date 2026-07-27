@@ -1,44 +1,72 @@
-# Network-first LinkedIn engagement playbook
+# LinkedIn commenting playbook: the priority ladder
 
-Locked 2026-07-25 per Greg's direct ruling. This replaces any prior comment
-strategy that targeted competitors, influencers, or big-follower accounts.
+Locked 2026-07-27 per Greg's direct ruling. This replaces every prior comment
+strategy. The failure this fixes: the commenting agent kept picking sales
+leaders Greg is not connected to, which is direct competition, and treating
+them as targets. That is the LAST rung of the ladder, not the first.
 
-## The rule (non-negotiable)
+## The priority ladder (non-negotiable)
 
-Comments go to people IN GREG'S NETWORK first. Always. Every day. In this order:
+Work the tiers in order. A tier only gets comments after the tier above it has
+been checked that day. Most days should never reach Tier 4.
 
-1. Vistage chairs (the 74 on the outreach tracker, plus any chair Greg knows)
-2. Executive coaches
-3. CEOs (Vistage members, masterclass attendees, San Diego owners, past clients)
-4. EOS implementers and integrators
-5. COOs and seconds-in-command (including chiefs of staff)
+### Tier 1: Vistage chairs and executive coaches
+The 74 chairs on the engagement roster plus any chair or exec coach Greg knows.
+These people put Greg in front of rooms. This is where comments go first,
+every day, no exceptions.
 
-Commenting on competitors, LinkedIn influencers, or "big accounts for reach"
-(Ruben Hassid, algorithm commentators, other AI-sales voices) is NOT the play.
-Do not generate those comments unless Greg explicitly asks for them by name.
-Feeding an influencer's comment section builds their audience, not Greg's
-pipeline. The 74 chairs and the CEOs behind them are the pipeline.
+### Tier 2: Anybody fractional
+Fractional CROs, CFOs, COOs, CMOs, CHROs, integrators, fractional anything.
+They sit inside dozens of companies, they refer constantly, and they are peers
+not competitors. A fractional CFO who knows Greg's name sends him into every
+client with a broken sales org.
 
-## Why network first
+### Tier 3: People Greg doesn't know
+New-audience expansion: CEOs, owners, operators, and other non-competitor
+professionals Greg is not connected to yet. This is how the network grows.
+The test before commenting: is this person a potential client, referrer, or
+room, and NOT a sales leader selling what Greg sells? If yes, comment.
 
-Every persona above either books Greg or refers Greg. A chair who sees Greg
-show up in their comments for two weeks opens the cold email that's already
-sitting in their inbox. A CEO who got value in a masterclass and then sees Greg
-engage with their announcement remembers him when the AI question hits their
-leadership meeting. Comments are the warm layer under the SMYKM outreach that
-is already in flight. Competitors' comment sections do none of that.
+### Tier 4: Competition (low priority, capped, structured)
+Sales leaders, AI-sales voices, and revenue consultants Greg is not connected
+to. There is a version of this that works, but it is the lowest priority and
+it runs under hard rules:
 
-## Daily routine (15 to 20 minutes)
+- Cap: 1 to 2 comments per week, total. Never daily.
+- Only when Tiers 1 through 3 produced fewer than 3 comments that day.
+- Only on a post where Greg has a genuinely differentiated take from his 30
+  years or his Vistage rooms. Agreement comments on competitor posts are free
+  marketing for them. Banned.
+- Never on a post that is pitching their offer, course, or community.
+- Never adversarial. Greg doesn't punch at competitors in public. The comment
+  adds a distinct angle, it doesn't correct or dunk.
+- The point of a Tier 4 comment is visibility to the OWNERS in that comment
+  section, not the competitor.
 
-1. Open the engagement roster (Vistage-Outreach/engagement-roster-2026-07-25.csv).
-   Work the Priority column: chairs with outreach drafts in flight come first.
-2. Check the last 24 to 48 hours of posts from 5 to 8 roster names. Chairs post
-   less often than influencers. A three-day-old post from a chair beats a
-   fresh post from a stranger.
-3. Leave 3 to 5 comments total. Quality over count. Zero comments is fine on a
-   day the network posted nothing worth engaging. Never comment to hit a quota.
-4. Log the touch in the roster (Last Touch column) so outreach and engagement
-   stay in sync.
+## Classification spec for the commenting agent
+
+Before commenting, classify the post author. Decision order matters: check for
+competitor LAST so a chair or fractional never gets misfiled, and check it
+before Tier 3 so a competitor never slips through as "person Greg doesn't know."
+
+1. CHAIR_OR_COACH (Tier 1): headline or about mentions Vistage chair, peer
+   advisory, executive coach, leadership coach, CEO coach. Or name appears on
+   the engagement roster.
+2. FRACTIONAL (Tier 2): headline contains fractional, interim, or portfolio
+   exec titles (fractional CxO, integrator, outsourced CFO, etc.).
+3. COMPETITOR (Tier 4): sells sales consulting, sales training, AI-for-sales
+   advisory, revenue growth consulting, or fractional CRO services aimed at
+   the same buyers as Greg. Sales leader thought-leadership accounts count.
+   IMPORTANT: not connected + sales leader = competitor, not prospect.
+4. UNKNOWN_GOOD (Tier 3): everyone else who passes the potential client,
+   referrer, or room test. CEOs, owners, COOs, EOS integrators, operators.
+5. SKIP: none of the above, or engagement-bait accounts, or anything the
+   agent can't classify confidently. When unsure, skip. A skipped comment
+   costs nothing. A comment on the wrong person costs positioning.
+
+Daily selection: fill from Tier 1 until exhausted, then Tier 2, then Tier 3.
+Tier 4 only under its own rules above. 3 to 5 comments a day total. Zero is an
+acceptable output on a quiet day. Never pad the count from lower tiers.
 
 ## Comment voice rules (same Voice Bible, comment-sized)
 
@@ -57,72 +85,66 @@ is already in flight. Competitors' comment sections do none of that.
 - Never invent shared history. If Greg hasn't met them, the comment stands on
   the content alone.
 
-## Per-persona frameworks
+## Per-tier frameworks
 
 These are shapes, not scripts. The specific detail always comes from their
 actual post. Never reuse an example verbatim.
 
-### Vistage chairs
+### Tier 1a: Vistage chairs
 
 Angle: peer respect for the chair's craft of running a room. Greg has stood in
 front of their kind of room and knows what a good group feels like.
-
-Shape: name the specific chair insight they posted, then one observation from
-the rooms Greg has worked.
 
 Example shape: "The point about members holding each other accountable is the
 whole game. Every strong group I've presented to had that one member who asks
 the question the room was avoiding. The chairs who cultivate that person run
 the best sessions."
 
-### Executive coaches
+### Tier 1b: Executive coaches
 
 Angle: fellow practitioner, different lane. Greg works execution and AI in
 sales orgs; coaches work the leader. Respect the overlap, never compete in it.
-
-Shape: affirm their behavioral point with something Greg has watched play out
-inside a sales org.
 
 Example shape: "Seen this exact pattern in sales teams. The manager who reports
 the news instead of coaching the rep through it. Your framing of it as an
 avoidance habit rather than a skill gap matches what I see."
 
-### CEOs
+### Tier 2: Fractional executives
+
+Angle: fellow fractional operator. Same buyer, adjacent seat. The comment
+treats them as a peer who sees inside companies the way Greg does.
+
+Example shape: "The pattern where the owner hires the seat but won't give it
+the authority shows up in sales too. Half my engagements start with fixing
+what the last underpowered hire couldn't touch."
+
+### Tier 3: People Greg doesn't know
 
 Angle: advisor who's been in the room with people like them. React to their
-milestone, hire, or hard-won lesson with an earned judgment, not congratulations.
-
-Shape: name what's actually impressive or hard about what they posted, in one
-specific sentence. Optional second sentence from Greg's lane.
+milestone, hire, or hard-won lesson with an earned judgment, not
+congratulations. No familiarity, no bridge to services. The comment stands
+entirely on their content.
 
 Example shape: "Promoting from within for that seat is the harder and better
 call. The number of CEOs I've watched buy an outside VP of Sales to skip the
 coaching work, and then pay for it for two years, is not small."
 
-### EOS implementers and integrators
+### Tier 4: Competition (when the rules allow it at all)
 
-Angle: shared operating-system mindset. Greg's whole thesis is process before
-tools, which is native EOS language. Scorecard, rocks, accountability chart,
-right people right seats. Use their vocabulary correctly or not at all.
+Angle: a differentiated take that the owners reading that comment section
+won't get from the post itself. Never agreement, never correction.
 
-Shape: connect their EOS point to what Greg sees when AI lands on top of a
-company with or without that discipline.
+Example shape: on a competitor's post about AI prospecting tools: "The tool
+conversation always skips the part where the sales process underneath is
+broken. In the Vistage rooms I work, the CEOs who got value from AI fixed the
+process first. The ones who bought tools first automated the failure faster."
 
-Example shape: "The scorecard discipline is exactly why EOS-run companies
-absorb AI faster. There's already a number for everything, so when AI surfaces
-a miss nobody argues about whether it's real."
+## Keeping the roster current
 
-### COOs and seconds-in-command
-
-Angle: the person who actually has to make the CEO's vision run. Greg respects
-the integrator's seat because execution is his lane too.
-
-Shape: validate the operational reality they named, with one specific from
-Greg's work inside sales orgs.
-
-Example shape: "The gap between the offsite plan and Monday morning is where
-that whole strategy lives or dies. Most of my work is in that gap. The plan was
-never the problem."
+Vistage-Outreach/engagement-roster-2026-07-25.csv holds Tier 1 (the 74 chairs
+with data flags). Add exec coaches, fractionals, and warm Tier 3 names as they
+appear, with the Persona column set to their tier. Log every comment in Last
+Touch so engagement and the SMYKM outreach drafts stay in sync.
 
 ## What this is not
 

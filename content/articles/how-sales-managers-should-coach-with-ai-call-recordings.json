@@ -1,0 +1,64 @@
+{
+  "title": "How Sales Managers Should Coach With AI Call Recordings",
+  "meta_description": "Learn how sales managers should coach with AI call recordings. Greg Grand shows founders how to build systems for effective, consistent sales coaching.",
+  "direct_answer": "Sales managers should coach with AI call recordings by first defining a clear, consistent coaching process. Use AI to quickly identify specific call moments related to pre-defined skill gaps or process adherence. Focus each coaching session on one or two actionable points, guiding reps to self-diagnose improvements. Prioritize questions over telling, turning data into real skill development.",
+  "key_takeaways": [
+    "AI call recordings amplify your existing coaching process, good or bad.",
+    "Effective coaching demands a system and clear objectives before you even listen.",
+    "Focus coaching sessions on one or two specific, actionable skill gaps, not every mistake.",
+    "Managers must guide reps to self-diagnose issues, using AI data as objective proof.",
+    "Your calendar is your operating plan for coaching; make time for intentional reviews."
+  ],
+  "sections": [
+    {
+      "heading": "The New Problem: More Data, Less Clarity",
+      "body_html": "<p>The promise of AI call recordings is simple: clarity into every sales conversation. You finally get to hear what happens when the rubber meets the road. But many leaders I speak with are finding themselves buried under a mountain of data, more confused than before. They have hours of recordings, transcripts, and AI-generated summaries, yet their coaching feels as inconsistent as ever. This disconnect leaves reps frustrated and skill gaps unaddressed, despite having all the 'evidence' right there.</p><p>I’ve walked into dozens of organizations where managers, well-intentioned, download gigabytes of call data and then just… stare at it. They know it holds answers, but they lack a system to make sense of the noise. The initial excitement quickly turns into overwhelm because nobody told them what to <em>do</em> with all that information.</p><p>Here is the reality: AI is a multiplier, not a replacement. It amplifies whatever system you have. If you have chaos in your coaching process, AI amplifies chaos. More data on its own does not lead to better coaching. It just gives you more chaos to sort through if you do not have a clear path forward.</p>"
+    },
+    {
+      "heading": "What's the real problem with sales coaching today?",
+      "body_html": "<p>Sales managers already feel stretched thin, managing pipelines, forecasts, and often still closing deals themselves. Coaching often gets squeezed to the margins, becoming reactive feedback given on the fly or only after a lost deal. This leads to generic advice like \"just make more calls\" or \"try to build better rapport,\" which does little for actual skill development.</p><p>The core issue is a lack of defined process and a focus on outcomes over inputs. Managers fixate on the \"what\" - did they close the deal - instead of the \"how\" - what specific behaviors led to that outcome. Without a clear coaching framework, feedback becomes subjective, inconsistent, and often too late to make a difference. This means reps aren't developing predictable habits for success. You can't build a high-performing sales engine if every rep is improvising their way through calls.</p><p>When you add AI call recordings to this environment, the problem can worsen. Managers now have objective proof of specific behaviors, but without a process for how to use it, they just dump that proof on the rep. This feels like an attack, not coaching, and it builds resentment, not skill. We have to change the fundamental approach to coaching itself.</p>"
+    },
+    {
+      "heading": "How do you actually prepare to coach with call recordings effectively?",
+      "body_html": "<p>Before you even open an AI call recording, you need a plan. You are not a detective looking for crimes; you are a surgeon making precise incisions. This starts with identifying specific, measurable behaviors or process steps you want to observe, aligned with your sales methodology or the rep’s individual development plan. Is it discovery questions? Handling objections? Following your defined qualification steps?</p><p>A simple but powerful preparation involves defining a \"coaching hypothesis\" for each rep. For instance, \"I believe Jane struggles with positioning our unique value proposition early in calls.\" Then, use the AI call recordings to either validate or disprove that hypothesis. This targeted approach prevents you from drowning in every detail of a call.</p><p>Block out 45 minutes for call review. During that time, listen for a maximum of two specific things. If you are reviewing a qualification call, listen for adherence to your ICP questions and then for how the rep handles the pricing discussion. This focus helps you stay sharp.</p>"
+    },
+    {
+      "heading": "What's the best way to structure a coaching session using AI data?",
+      "body_html": "<p>A coaching session with AI data is not a lecture; it is a guided discovery. Start by setting the stage: \"I listened to your call with Acme Corp, and I want to talk about how we can strengthen a specific part of your process.\" Then, share a specific moment from the recording without judgment. Use a timestamp and play just 30-60 seconds of it.</p><p>After the clip, ask open-ended questions. \"What did you notice there?\" \"How do you think that landed with the prospect?\" \"If you could do that part again, what might you do differently?\" Your goal is to get the rep to self-diagnose the issue. This is essential for true learning and ownership.</p><p>Then, transition to collaborative problem-solving. \"What specific strategies could we try next time?\" \"Let’s role-play that section right now.\" End with a clear action plan the rep commits to, detailing one or two behaviors they will implement in their next calls. This makes the learning actionable.</p>"
+    },
+    {
+      "heading": "How do you focus on the right parts of a recording?",
+      "body_html": "<p>The biggest trap managers fall into is trying to coach everything in one session. You cannot fix every flaw in a single 30-minute meeting. If you try, the rep will feel overwhelmed and shut down. Instead, pick one or two areas for improvement, directly linked to a specific part of your sales process or a foundational skill.</p><p>AI tools are brilliant at highlighting specific moments: questions asked, objections raised, talk-to-listen ratios. Use these features to pinpoint your focus areas quickly. Do not waste time listening to filler. Go straight to the moments where your coaching hypothesis can be tested.</p><p>This approach aligns with the 5 P's framework, specifically focusing on \"Process\" and \"People.\" <blockquote>If it lives in one rep's head, it isn't a process.</blockquote> Coaching with recordings helps standardize behavior across the team. It turns informal \"best practices\" into documented and repeatable actions.</p>"
+    },
+    {
+      "heading": "How can AI tools support consistent coaching, not just data dumps?",
+      "body_html": "<p>AI call recordings provide objective truth, removing the \"he said, she said\" from coaching. The manager is no longer the sole source of feedback. The recording itself becomes the data point, making conversations less personal and more factual. This shifts the dynamic to a shared pursuit of better performance.</p><p>But AI does not interpret; it just presents data. It is up to the manager to connect that data to a coaching moment. I have seen managers drown in data, getting caught up in the details instead of focusing on the patterns. The manager still holds the responsibility for diagnosing root causes and guiding the rep toward a solution.</p><p>Think of AI as your co-pilot, not the pilot. It highlights areas of interest, like a radar spotting potential issues. But you, the manager, decide which issue to address, how to approach it, and what training is required. This means AI can help make coaching more consistent by quickly identifying similar patterns across calls and reps, allowing for targeted group training or individual deep dives.</p>"
+    },
+    {
+      "heading": "What's the critical first step to getting this right?",
+      "body_html": "<p>Your first step is to document your current coaching process, or lack thereof. You cannot improve what you have not defined. Map out the steps: when will coaching happen, how will calls be selected, what specific behaviors will be observed, and what is the structure of the coaching conversation? This needs to be a written system, not just an idea. If it lives in one rep's head, or even just in your head, it isn't a process you can teach, refine, or scale across your team.</p><p>Once you have a defined process, integrating AI call recordings becomes a matter of plugging a powerful tool into an already functioning engine. Without that engine, you just have a powerful tool collecting dust or, worse, creating more noise. This is how you avoid <blockquote>optimistic fiction</blockquote> in your coaching efforts, where you hope things get better without a concrete plan. You might be spending money on advanced AI tools, but if the foundational process isn't solid, you're just paying to get lost faster.</p><p><blockquote>Start with process, not tools.</blockquote> Then, use AI to make that process sharper, faster, and more effective. This is how you move from reactive feedback to proactive skill development.</p><p>This is not a suggestion; it is a mandate for anyone serious about improving sales performance. Find out more at theaisalesleader.com.</p>"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Can AI replace sales managers for coaching?",
+      "answer": "No, AI cannot replace sales managers for coaching. AI provides objective data and insights from call recordings, highlighting specific moments and patterns. But it is the manager’s human judgment, empathy, and experience that interpret this data, diagnose root causes, and guide reps through tailored development plans. AI is a tool, not a coach."
+    },
+    {
+      "question": "How much time should a manager spend reviewing recordings?",
+      "answer": "A manager should block 45 minutes for dedicated call review per rep per week, if possible. The goal is focused review, not exhaustive listening. Target specific behaviors related to a rep’s development plan or process adherence, using AI summaries to get to relevant sections quickly. Consistency in review time is more important than sheer volume."
+    },
+    {
+      "question": "What if reps resist being recorded or coached with AI?",
+      "answer": "Rep resistance often stems from fear or feeling exposed. Frame AI call recordings as a tool for objective improvement and skill development, not a way to catch mistakes. Emphasize that the data is for their growth. Involve reps in identifying their own areas for improvement. Build trust by focusing on one or two actionable points and celebrating small wins."
+    },
+    {
+      "question": "How do I know what to look for in AI call recordings?",
+      "answer": "Start by defining clear coaching objectives based on your sales process or a rep’s individual skill gaps. For example, listen for discovery questions, objection handling, or adherence to your qualification steps. Use AI’s ability to pinpoint these moments. Do not try to find everything; focus on one or two specific, measurable behaviors per review session."
+    }
+  ],
+  "linkedin_post": "AI call recordings.\nYou’ve got the data.\nNow what.\n\nMost sales managers are drowning in it.\nHours of calls, transcripts, summaries.\nCoaching should improve but often doesn't.\n\nHere is the reality: AI amplifies your system.\nIf your coaching process is chaos, AI gives you more chaos.\nYou can't scale chaos.\n\nStart with process, not tools.\nDefine what you are looking for.\nAsk the right questions.\n\nMake your coaching precise, not just prolific.\n\nMy new article breaks down how sales managers should coach with AI call recordings.\nNo fluff, just the system.\nSee the full piece at theaisalesleader.com.",
+  "keyword": "how sales managers should coach with AI call recordings",
+  "slug": "how-sales-managers-should-coach-with-ai-call-recordings",
+  "published": "2026-07-27"
+}

@@ -53,6 +53,16 @@ AUTHOR_BIO = os.getenv(
 AUTHOR_LINKEDIN_URL = os.getenv("AUTHOR_LINKEDIN_URL", "https://www.linkedin.com/in/greggrand/")
 AUTHOR_WEBSITE_URL = os.getenv("AUTHOR_WEBSITE_URL", "https://theaisalesleader.com")
 
+# ── Conversion path (verified live pages on the main site, 2026-07-29) ────────
+# Deep links to real offer pages, not the bare homepage. The booking CTA points
+# at the live /contact/ form (that is how a reader books the 30/60/90 session).
+BOOKING_URL = os.getenv("BOOKING_URL", "https://theaisalesleader.com/contact/")
+PROGRAM_URL = os.getenv("PROGRAM_URL", "https://theaisalesleader.com/program/")
+# Email-capture form (Google Form the leads land in). When empty, the email
+# CTA is NOT rendered, so a form that posts nowhere can never ship.
+LEAD_FORM_URL = os.getenv("LEAD_FORM_URL", "")
+LEAD_MAGNET_NAME = os.getenv("LEAD_MAGNET_NAME", "AI Sales Readiness Scorecard")
+
 # IndexNow: instant "new page" pings to Bing (whose index powers ChatGPT
 # search and Copilot). The key is meant to be public; it is verified by the
 # matching <key>.txt file the publisher hosts on the site.

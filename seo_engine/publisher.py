@@ -26,7 +26,11 @@ from config import (
     AUTHOR_LINKEDIN_URL,
     AUTHOR_NAME,
     AUTHOR_WEBSITE_URL,
+    BOOKING_URL,
     INDEXNOW_KEY,
+    LEAD_FORM_URL,
+    LEAD_MAGNET_NAME,
+    PROGRAM_URL,
     SITE_BASE_URL,
     SITE_NAME,
     SITE_TAGLINE,
@@ -100,8 +104,15 @@ blockquote{border-left:4px solid var(--accent);background:var(--soft);padding:.9
 .article-list p{color:var(--muted);margin:.35rem 0 0;font-size:.98rem}
 .article-list .date{color:var(--muted);font-size:.82rem;font-family:Arial,Helvetica,sans-serif}
 footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;font-family:Arial,Helvetica,sans-serif;padding:1.5rem 0 2.5rem}
-.cta{background:var(--ink);color:#fff;border-radius:6px;padding:1.3rem 1.4rem;margin-top:2rem}
+.cta{background:var(--ink);color:#fff;border-radius:6px;padding:1.5rem 1.5rem;margin-top:2.5rem}
+.cta strong{font-family:Arial,Helvetica,sans-serif;font-size:1.15rem;display:block;margin-bottom:.5rem}
+.cta p{color:#cfd6de;margin:.3rem 0 1rem;font-size:.98rem}
 .cta a{color:#8fc3ff}
+.cta-btn{display:inline-block;background:var(--accent);color:#04121b !important;font-family:Arial,Helvetica,sans-serif;font-weight:bold;text-decoration:none;padding:.75rem 1.3rem;border-radius:5px;margin:.2rem 0}
+.cta-alt{display:block;margin-top:.9rem;font-size:.95rem;color:#cfd6de}
+.lead{background:var(--soft);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:1.3rem 1.4rem;margin-top:1.6rem}
+.lead strong{font-family:Arial,Helvetica,sans-serif;display:block;margin-bottom:.4rem}
+.lead a{font-family:Arial,Helvetica,sans-serif;font-weight:bold}
 """
 
 
@@ -200,13 +211,34 @@ def _render_article_page(article: dict, all_articles: list[dict]) -> str:
             parts.append(f'<li><a href="{article_url(r)}">{_esc(r["title"])}</a></li>')
         parts.append("</ul>")
 
+    # Primary CTA: book the 30/60/90 AI Sales Strategy Session, plus a
+    # deep link to the programs page (not the bare homepage).
     parts.append(
-        '<div class="cta"><strong>Want this fixed in your company?</strong><br>'
-        f"Connect with {_esc(AUTHOR_NAME)} on "
-        f'<a href="{_esc(AUTHOR_LINKEDIN_URL)}">LinkedIn</a>, or learn about '
-        f'fractional CRO work and the CASL&trade; certification at '
-        f'<a href="{_esc(AUTHOR_WEBSITE_URL)}">theaisalesleader.com</a>.</div>'
+        '<div class="cta">'
+        "<strong>Ready to put this to work in your company?</strong>"
+        "<p>Book a 30/60/90 AI Sales Strategy Session with Greg. Sixty minutes, "
+        "one on one. We diagnose your sales engine and map where AI actually "
+        "moves revenue. No pitch.</p>"
+        f'<a class="cta-btn" href="{_esc(BOOKING_URL)}">Book your strategy session</a>'
+        f'<span class="cta-alt">Prefer to see the programs first? Explore the '
+        f'CASL&trade; certification and the full suite at '
+        f'<a href="{_esc(PROGRAM_URL)}">theaisalesleader.com/program</a>. '
+        f'Or connect with Greg on '
+        f'<a href="{_esc(AUTHOR_LINKEDIN_URL)}">LinkedIn</a>.</span>'
+        "</div>"
     )
+
+    # Lead capture: only rendered when a real form URL is configured, so a
+    # form that collects nothing can never ship.
+    if LEAD_FORM_URL:
+        parts.append(
+            '<div class="lead">'
+            f"<strong>Not ready to talk yet? Get the {_esc(LEAD_MAGNET_NAME)}.</strong>"
+            "Score your sales team's AI readiness in five minutes and see the "
+            "three gaps costing you revenue right now. "
+            f'<a href="{_esc(LEAD_FORM_URL)}">Get the scorecard</a>.'
+            "</div>"
+        )
 
     # E-E-A-T author box
     parts.append(

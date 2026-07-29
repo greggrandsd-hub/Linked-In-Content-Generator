@@ -60,7 +60,7 @@ BOOKING_URL = os.getenv("BOOKING_URL", "https://theaisalesleader.com/contact/")
 PROGRAM_URL = os.getenv("PROGRAM_URL", "https://theaisalesleader.com/program/")
 # Email-capture form (Google Form the leads land in). When empty, the email
 # CTA is NOT rendered, so a form that posts nowhere can never ship.
-LEAD_FORM_URL = os.getenv("LEAD_FORM_URL", "")
+LEAD_FORM_URL = os.getenv("LEAD_FORM_URL", "https://insights.theaisalesleader.com/scorecard/")
 LEAD_MAGNET_NAME = os.getenv("LEAD_MAGNET_NAME", "AI Sales Readiness Scorecard")
 
 # IndexNow: instant "new page" pings to Bing (whose index powers ChatGPT

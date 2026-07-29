@@ -412,6 +412,88 @@ def _render_rss(articles: list[dict]) -> str:
 
 # ── Build ────────────────────────────────────────────────────────────────────
 
+def _render_scorecard() -> str:
+    """Self-hosted AI Sales Readiness Scorecard: 5 questions, client-side
+    score, tailored readout, booking CTA, and a prefilled-email capture to
+    Greg. No backend, no third party, lives on Greg's own domain."""
+    questions = [
+        ("Does your sales team run on a documented, repeatable process?",
+         ["Yes, it is written down and everyone follows it", "Somewhat, it lives in a few people's heads", "No"]),
+        ("Can you forecast the quarter within 10 percent?",
+         ["Yes, consistently", "Sometimes", "No, it is mostly a guess"]),
+        ("Is anyone on the team already using AI in their daily selling?",
+         ["Yes, several people", "One or two are experimenting", "No"]),
+        ("Do reps get consistent coaching on real calls?",
+         ["Yes, on a regular cadence", "Occasionally", "No"]),
+        ("Have you defined what good AI use looks like for the team?",
+         ["Yes, there is a clear standard", "We are starting to", "No"]),
+    ]
+    qhtml = []
+    for i, (q, opts) in enumerate(questions):
+        ohtml = "".join(
+            f'<label class="opt"><input type="radio" name="q{i}" value="{2-j}"> {_esc(o)}</label>'
+            for j, o in enumerate(opts)
+        )
+        qhtml.append(f'<div class="q" data-q="{i}"><p class="qtext">{i+1}. {_esc(q)}</p>{ohtml}</div>')
+    body = """
+<article>
+<h1>AI Sales Readiness Scorecard</h1>
+<p class="lede">Five questions. See where your sales team stands on putting AI to work, and get a straight read on the gaps costing you revenue right now. Nothing to install, no email required to see your score.</p>
+{questions_html}
+<button id="score-btn" class="cta-btn" type="button">See my score</button>
+<div id="result" style="display:none" class="cta"></div>
+</article>
+<style>
+.q{{border:1px solid var(--line);border-radius:6px;padding:1rem 1.2rem;margin:1rem 0;background:var(--soft)}}
+.qtext{{font-family:Arial,Helvetica,sans-serif;font-weight:bold;margin-bottom:.6rem}}
+.opt{{display:block;padding:.35rem 0;cursor:pointer}}
+.opt input{{margin-right:.5rem}}
+#score-btn{{border:0;cursor:pointer;font-size:1rem;margin-top:.5rem}}
+.lede{{color:var(--muted);margin-bottom:1.5rem}}
+#result h2{{font-family:Arial,Helvetica,sans-serif;color:#fff;margin-bottom:.5rem}}
+#result .band{{font-size:1.3rem;font-weight:bold;color:var(--accent)}}
+</style>
+<script>
+document.getElementById('score-btn').addEventListener('click',function(){{
+  var qs={len_q},total=0,answered=0,gaps=[];
+  var labels={labels_json};
+  for(var i=0;i<qs;i++){{
+    var sel=document.querySelector('input[name="q'+i+'"]:checked');
+    if(sel){{answered++;var v=parseInt(sel.value,10);total+=v;if(v<=1)gaps.push(labels[i]);}}
+  }}
+  if(answered<qs){{alert('Answer all five to see your score.');return;}}
+  var band,msg;
+  if(total>=8){{band='Ready to scale';msg='Your system is solid. AI will multiply what you already have. The move now is speed: get the whole team using it before your competitors do.';}}
+  else if(total>=4){{band='Foundation there, gaps are leaking';msg='The bones are good, but AI will amplify the gaps until they are fixed. Close them first and the tools pay for themselves.';}}
+  else{{band='Fix the system first';msg='AI on top of this loses money. The process has to hold before the tools can help. That is fixable, and it is where the fastest ROI is.';}}
+  var gapline=gaps.length?('<p>Your biggest gaps right now: <strong>'+gaps.join(', ')+'</strong>.</p>'):'';
+  var subject=encodeURIComponent('My AI Sales Readiness score: '+total+' out of 10');
+  var mbody=encodeURIComponent('Greg, I scored '+total+' out of 10 on the AI Sales Readiness Scorecard.'+(gaps.length?(' My weakest areas: '+gaps.join('; ')+'.'):'')+' I would like your read on it.');
+  var r=document.getElementById('result');
+  r.style.display='block';
+  r.innerHTML='<h2>Your score: '+total+' out of 10</h2><div class="band">'+band+'</div><p>'+msg+'</p>'+gapline
+    +'<a class="cta-btn" href="{book}">Book a 30/60/90 strategy session</a>'
+    +'<span class="cta-alt">Want Greg\\'s straight read on your score? <a href="mailto:{contact_email}?subject='+subject+'&body='+mbody+'">Send it to him</a>. Or explore the programs at <a href="{program}">theaisalesleader.com/program</a>.</span>';
+  r.scrollIntoView({{behavior:'smooth'}});
+}});
+</script>
+""".format(
+        questions_html="".join(qhtml),
+        len_q=len(questions),
+        labels_json=json.dumps(["process", "forecasting", "AI adoption", "coaching", "AI standards"]),
+        book=_esc(BOOKING_URL),
+        program=_esc(PROGRAM_URL),
+        contact_email="greg@gsquaredadvisors.com",
+    )
+    return _page(
+        title="AI Sales Readiness Scorecard | The AI Sales Leader",
+        meta_description="Score your sales team's readiness to put AI to work in five questions. Get a straight read on the gaps costing you revenue, from Greg Grand.",
+        canonical=f"{SITE_BASE_URL}/scorecard/",
+        body=body,
+        og_type="website",
+    )
+
+
 def build_site() -> int:
     """Rebuild the whole static site under docs/. Returns article count."""
     articles = load_articles()
@@ -427,6 +509,7 @@ def build_site() -> int:
     for a in articles:
         write(os.path.join("articles", a["slug"], "index.html"),
               _render_article_page(a, articles))
+    write("scorecard/index.html", _render_scorecard())
     write("sitemap.xml", _render_sitemap(articles))
     write("robots.txt", _render_robots())
     write("llms.txt", _render_llms_txt(articles))

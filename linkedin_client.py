@@ -30,6 +30,72 @@ TOKEN_FILE = os.path.join(os.path.dirname(__file__), ".linkedin_token.json")
 REDIRECT_URI = "http://localhost:8585/callback"
 SCOPES = "w_member_social"
 
+# ---------------------------------------------------------------------------
+# APPROVAL GATE (Greg's ruling 2026-07-31, enforced 2026-08-04)
+#
+# On 2026-07-31 three comments went live on Greg's LinkedIn that he never
+# approved. His ruling: "I didn't tell you to ever post without me."
+#
+# Every write function below now fails CLOSED. Nothing publishes unless Greg's
+# same-day, per-comment approval is on file. The Claude hook
+# .claude/hooks/block_linkedin_autopost.py blocks these paths at the tool
+# boundary; this guard is the second layer, so the module stays safe even when
+# run outside Claude entirely (Task Scheduler, a stray python call, a future
+# script that imports it).
+#
+# The gate is opened only by .claude/hooks/grant_li_comment_approval.py after
+# Greg types his GO. Do not add a bypass flag. Do not weaken this to "warn".
+# ---------------------------------------------------------------------------
+APPROVAL_FILE = r"C:\Users\16194\Desktop\Git Test Folder\_BACKUPS\.li_comment_approval.json"
+
+
+def _require_greg_approval(action: str, action_class: str,
+                           comment_number: int | None = None) -> None:
+    """Raise unless Greg approved this exact action today. Fail closed.
+
+    action_class matters (hardened 2026-08-04 after the council review): before
+    this, an approval covering comments 1-3 ALSO unlocked post_to_linkedin()
+    (an original post to Greg's feed) and setup_oauth() (a fresh 60-day posting
+    token), because those pass comment_number=None and the per-item check was
+    skipped. A comment GO is a comment GO. It is not permission to publish a
+    post and it is certainly not permission to mint a token.
+    """
+    from datetime import date
+
+    try:
+        with open(APPROVAL_FILE, encoding="utf-8") as f:
+            record = json.load(f)
+    except Exception:
+        record = None
+
+    if not record or record.get("date") != date.today().isoformat():
+        raise RuntimeError(
+            f"REFUSED: {action} without Greg's approval.\n"
+            f"No valid approval for {date.today().isoformat()} at {APPROVAL_FILE}.\n"
+            "Greg's rule (2026-07-31): nothing posts to his LinkedIn without his\n"
+            "typed GO on that specific item, that same day. Send the ping, wait\n"
+            "for his GO, record it with grant_li_comment_approval.py."
+        )
+
+    if record.get("class", "comment") != action_class:
+        raise RuntimeError(
+            f"REFUSED: {action}.\n"
+            f"Today's approval covers '{record.get('class', 'comment')}' actions, "
+            f"not '{action_class}'.\n"
+            "A GO on comments never authorizes publishing a post or minting a token."
+        )
+
+    if comment_number is not None:
+        approved = record.get("approved") or []
+        numbers = {item["n"] for item in approved
+                   if isinstance(item, dict) and "n" in item}
+        if comment_number not in numbers:
+            raise RuntimeError(
+                f"REFUSED: comment #{comment_number} is not in today's approval.\n"
+                f"Greg approved only {sorted(numbers)} "
+                f"(his words: {record.get('greg_wording', 'not recorded')})."
+            )
+
 
 def _load_saved_token() -> str | None:
     """Load a previously saved access token."""
@@ -72,7 +138,12 @@ def setup_oauth() -> str:
     """
     Run the OAuth 2.0 flow to get a LinkedIn access token.
     Opens a browser for the user to authorize.
+
+    GATED: minting a token is what makes silent posting possible again, so this
+    requires Greg's same-day approval too. The saved token expired 2026-05-18 and
+    it stays that way unless Greg himself decides otherwise.
     """
+    _require_greg_approval("minting a new LinkedIn posting token", "token")
     if not LINKEDIN_CLIENT_ID or not LINKEDIN_CLIENT_SECRET:
         print("ERROR: Set LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET in your .env file first.")
         print("Get these from: https://www.linkedin.com/developers/apps")
@@ -158,7 +229,12 @@ def post_to_linkedin(
 ) -> str:
     """
     Post content to LinkedIn. Returns the post URL.
+
+    GATED: raises unless Greg's same-day approval is on file. Greg publishes his
+    own original posts; this path exists for legacy callers (run.py, app.py) and
+    must never fire on its own.
     """
+    _require_greg_approval("publishing a LinkedIn post", "post")
     access_token = get_access_token()
     person_urn = get_my_profile_urn(access_token)
     headers = {
@@ -212,9 +288,13 @@ def post_to_linkedin(
         resp.raise_for_status()
 
 
-def post_comment(post_urn: str, comment_text: str) -> dict:
+def post_comment(post_urn: str, comment_text: str, comment_number: int | None = None) -> dict:
     """
     Post a comment on an existing LinkedIn post or share.
+
+    GATED: raises unless Greg approved this comment number today. See
+    _require_greg_approval above. Callers must pass comment_number (the "## Comment N"
+    from the dated queue file) so approval is enforced per comment, not per batch.
 
     Args:
         post_urn: The URN of the target post. Accepts forms:
@@ -230,6 +310,14 @@ def post_comment(post_urn: str, comment_text: str) -> dict:
     LinkedIn endpoint: POST /v2/socialActions/{encoded_share_urn}/comments
     Required scope: w_member_social (already in SCOPES at top of file).
     """
+    if comment_number is None:
+        raise RuntimeError(
+            "REFUSED: post_comment() requires comment_number.\n"
+            "Without it the per-comment check is skipped and any same-day approval\n"
+            "would authorize arbitrary comment text. Pass the '## Comment N' number\n"
+            "from the dated queue file Greg actually reviewed."
+        )
+    _require_greg_approval("posting a LinkedIn comment", "comment", comment_number)
     access_token = get_access_token()
     person_urn = get_my_profile_urn(access_token)
 

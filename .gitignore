@@ -25,7 +25,11 @@ Thumbs.db
 *.tmp
 
 # Runtime artifacts / credentials / training IP (never publish)
-.linkedin_token.json
+# Widened 2026-08-11 on Greg's typed GO: the exact-name rule missed the
+# renamed-dead variant (.EXPIRED-DISABLED-2026-08-04), which sat untracked
+# and kept the parent repo's gitlink permanently dirty. Match every variant,
+# same as the parent .gitignore has since 2026-08-06.
+.linkedin_token*
 .last_run.json
 .last_image_*.png
 app_output.log
